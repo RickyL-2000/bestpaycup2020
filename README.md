@@ -3,6 +3,7 @@
 
 ## 文件架构
 
+```
 .
 ├── LICENSE
 ├── README.md
@@ -23,6 +24,7 @@
             ├── train_op.csv
             ├── train_trans.csv
             └── 数据字典.doc
+```
 
 ## Todo List
 
@@ -42,21 +44,16 @@
 
 训练数据集中的文件包含：
 
- 	 黑白样本标签(0/1)：train_label.csv，共47782条数据。
-
- 	 脱敏后的用户基础信息：train_base.csv，共47782条数据。
-
-​	  脱敏后的用户操作信息：train_op.csv，共2774988条数据。
-
- 	 脱敏后的用户交易信息：train_trans.csv，共591266条数据。
+* 黑白样本标签(0/1)：train_label.csv，共47782条数据。
+* 脱敏后的用户基础信息：train_base.csv，共47782条数据。
+* 脱敏后的用户操作信息：train_op.csv，共2774988条数据。
+* 脱敏后的用户交易信息：train_trans.csv，共591266条数据。
 
 初赛测试数据集包含：
 
-​	  脱敏后的用户基础信息：test_a_base.csv，共24315条数据。
-
-​	  脱敏后的用户操作信息：test_a_op.csv，共1109432条数据。
-
-​	  脱敏后的用户交易信息：test_a_trans.csv，共147870条数据
+* 脱敏后的用户基础信息：test_a_base.csv，共24315条数据。
+* 脱敏后的用户操作信息：test_a_op.csv，共1109432条数据。
+* 脱敏后的用户交易信息：test_a_trans.csv，共147870条数据
 
 详见数据字典
 
