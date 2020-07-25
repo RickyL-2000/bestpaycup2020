@@ -7,23 +7,29 @@
 .
 ├── LICENSE
 ├── README.md
-└── dataset
-    ├── dataset1
-    │   ├── readme.md
-    │   ├── testset
-    │   └── trainset
-    └── raw_dataset
-        ├── testset
-        │   ├── submit_example.csv
-        │   ├── test_a_base.csv
-        │   ├── test_a_op.csv
-        │   └── test_a_trans.csv
-        └── trainset
-            ├── train_base.csv
-            ├── train_label.csv
-            ├── train_op.csv
-            ├── train_trans.csv
-            └── 数据字典.doc
+├── dataset
+│   ├── dataset1
+│   │   ├── readme.md
+│   │   ├── testset
+│   │   └── trainset
+│   └── raw_dataset
+│       ├── sample_trainset
+│       │   ├── sample_base.csv
+│       │   ├── sample_op.csv
+│       │   └── sample_trans.csv
+│       ├── testset
+│       │   ├── submit_example.csv
+│       │   ├── test_a_base.csv
+│       │   ├── test_a_op.csv
+│       │   └── test_a_trans.csv
+│       └── trainset
+│           ├── train_base.csv
+│           ├── train_label.csv
+│           ├── train_op.csv
+│           ├── train_trans.csv
+│           └── 数据字典.doc
+└── script
+    └── dataset_reader.py
 ```
 
 ## Todo List
