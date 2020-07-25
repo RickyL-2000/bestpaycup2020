@@ -1,6 +1,8 @@
 # bestpaycup2020
 第二届翼支付杯大数据建模大赛-信用风险用户识别
 
+[石墨工作区](https://shimo.im/space/WlArzBdr9rinQOA2)
+
 ## 文件架构
 
 ```
