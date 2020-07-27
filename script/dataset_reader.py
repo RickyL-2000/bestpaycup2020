@@ -2,16 +2,35 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os,sys
-os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
-print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
+#os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
+#print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
 
 # %%
 csv1 = pd.read_csv('./../dataset/raw_dataset/trainset/train_op.csv')
 
 
 # %%
-print(csv1[0:1]['user'].values)
-
+print(len(csv1[:]['user'].values)) # 总量
+print(csv1['user'].isnull().sum()) # 缺失值的数量
+print(csv1['op_type'].isnull().sum())     
+print(csv1['op_mode'].isnull().sum())  
+print(csv1['op_device'].isnull().sum())
+print(csv1['ip'].isnull().sum())
+print(csv1['net_type'].isnull().sum())
+print(csv1['channel'].isnull().sum())
+print(csv1['ip_3'].isnull().sum())
+print(csv1['tm_diff'].isnull().sum())
+# %% 
+# 统计种类及频率信息
+print(csv1['user'].value_counts())
+print(csv1['op_type'].value_counts())
+print(csv1['op_mode'].value_counts())
+print(csv1['op_device'].value_counts())
+print(csv1['ip'].value_counts())
+print(csv1['net_type'].value_counts())
+print(csv1['channel'].value_counts())
+print(csv1['ip_3'].value_counts())
+print(csv1['tm_diff'].value_counts())
 # %%
 trans = pd.read_csv(r"./../dataset/raw_dataset/trainset/train_trans.csv")
 sample_trans = pd.read_csv(r"./../dataset/raw_dataset/sample_trainset/sample_trans.csv")
