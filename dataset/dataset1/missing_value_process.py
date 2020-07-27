@@ -5,25 +5,18 @@ import os,sys
 import re
 import matplotlib.pyplot as plt
 
-#%% vscode user
-os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
-print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
-TRAIN_BASE_PATH = './../../dataset/raw_dataset/trainset/train_base.csv'
-TRAIN_OP_PATH = './../../dataset/raw_dataset/trainset/train_op.csv'
-TRAIN_TRANS_PATH = "./../../dataset/raw_dataset/trainset/train_trans.csv"
+#%% initial path
+cur_path = sys.path[0].split(os.path.sep)
+workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
+os.chdir(workspace_path) # 把运行目录强制转移到【工作区】
+print(f"把运行目录强制转移到【工作区】{os.getcwd()}")
 
-SAMPLE_BASE_PATH = "./../../dataset/raw_dataset/sample_trainset/sample_base.csv"
-SAMPLE_TRANS_PATH = "./../../dataset/raw_dataset/sample_trainset/sample_trans.csv"
-
-PROCESSED_TRAIN_PATH = "./../../dataset/dataset1/trainset/train_trans.csv"
-
-#%% pycharm user
-# 运行目录在“工作区”
 TRAIN_BASE_PATH = './dataset/raw_dataset/trainset/train_base.csv'
 TRAIN_OP_PATH = './dataset/raw_dataset/trainset/train_op.csv'
 TRAIN_TRANS_PATH = "./dataset/raw_dataset/trainset/train_trans.csv"
 
 SAMPLE_BASE_PATH = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
+SAMPLE_OP_PATH = './dataset/raw_dataset/trainset/sample_op.csv'
 SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 PROCESSED_TRAIN_PATH = "./dataset/dataset1/trainset/train_trans.csv"
