@@ -25,7 +25,7 @@ SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 
 # %%
-def process_base(base_path，verbose=False):
+def process_base(base_path,verbose=False):
     def to_int(entry):
         if type(entry) is str:
             level = re.search("^(category|level) ([0-9]+)",entry)
@@ -52,7 +52,7 @@ def process_base(base_path，verbose=False):
     if verbose:
         print(base2.info())
         print(base2.discribe())
-        
+
     return base2
 
 # %%
