@@ -13,10 +13,19 @@ csv1 = pd.read_csv('./../dataset/raw_dataset/trainset/train_op.csv')
 print(csv1[0:1]['user'].values)
 
 # %%
+"""以下为trans文件的地盘"""
+
+# %%
+
 trans = pd.read_csv(r"./../dataset/raw_dataset/trainset/train_trans.csv")
 sample_trans = pd.read_csv(r"./../dataset/raw_dataset/sample_trainset/sample_trans.csv")
 
 print(sample_trans.head(10))
+
+# %%
+"""基本信息"""
+print(trans.info())
+print(trans.describe())
 
 
 # %%
