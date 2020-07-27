@@ -23,23 +23,23 @@ SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 # %% 
 base = pd.read_csv(TRAIN_BASE_PATH)
-
-index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
-       'regist_type', 'card_a_cnt', 'card_b_cnt', 'card_c_cnt', 'agreement1',
-       'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
-       'service1_amt', 'service2_cnt', 'agreement2', 'agreement3',
-       'agreement4', 'acc_count', 'login_cnt_period1', 'login_cnt_period2',
-       'ip_cnt', 'login_cnt_avg', 'login_days_cnt', 'province', 'city',
-       'balance', 'balance_avg', 'balance1', 'balance1_avg', 'balance2',
-       'balance2_avg', 'service3', 'service3_level', 'product1_amount',
-       'product2_amount', 'product3_amount', 'product4_amount',
-       'product5_amount', 'product6_amount', 'product7_cnt',
-       'product7_fail_cnt']
-
+index = base.columns.tolist()
 print("base表条目总数：",len(base[:]['user'].values)) # 总量
 print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
 for e in index:
     print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
+
+# index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
+#        'regist_type', 'card_a_cnt', 'card_b_cnt', 'card_c_cnt', 'agreement1',
+#        'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
+#        'service1_amt', 'service2_cnt', 'agreement2', 'agreement3',
+#        'agreement4', 'acc_count', 'login_cnt_period1', 'login_cnt_period2',
+#        'ip_cnt', 'login_cnt_avg', 'login_days_cnt', 'province', 'city',
+#        'balance', 'balance_avg', 'balance1', 'balance1_avg', 'balance2',
+#        'balance2_avg', 'service3', 'service3_level', 'product1_amount',
+#        'product2_amount', 'product3_amount', 'product4_amount',
+#        'product5_amount', 'product6_amount', 'product7_cnt',
+#        'product7_fail_cnt']
 
 # %%
 csv1 = pd.read_csv(TRAIN_OP_PATH)
