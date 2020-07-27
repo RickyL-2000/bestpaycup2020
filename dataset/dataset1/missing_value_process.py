@@ -15,13 +15,18 @@ TRAIN_TRANS_PATH = "./../../dataset/raw_dataset/trainset/train_trans.csv"
 SAMPLE_BASE_PATH = "./../../dataset/raw_dataset/sample_trainset/sample_base.csv"
 SAMPLE_TRANS_PATH = "./../../dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
+PROCESSED_TRAIN_PATH = "./../../dataset/dataset1/trainset/train_trans.csv"
+
 #%% pycharm user
 # 运行目录在“工作区”
 TRAIN_BASE_PATH = './dataset/raw_dataset/trainset/train_base.csv'
 TRAIN_OP_PATH = './dataset/raw_dataset/trainset/train_op.csv'
 TRAIN_TRANS_PATH = "./dataset/raw_dataset/trainset/train_trans.csv"
 
+SAMPLE_BASE_PATH = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
 SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
+
+PROCESSED_TRAIN_PATH = "./dataset/dataset1/trainset/train_trans.csv"
 
 
 # %%
@@ -48,11 +53,11 @@ def process_base(base_path,verbose=False):
     # 合并service3项
     base2["service3"][base2["service3"]==0] = -1
     base2["service3"][base2["service3"] != -1] = base2["service3_level"][base2["service3_level"].notna()]
-    base2.drop("service3_level",axis=1,inplace=True)
+    base2.drop("service3_level",axis=1,inplace=True)    # 删除service3_level列
+
     if verbose:
         print(base2.info())
         print(base2.discribe())
-
     return base2
 
 # %%
@@ -70,6 +75,8 @@ if __name__ == "__main__":
     # base_path = SAMPLE_BASE_PATH
     base_path = TRAIN_BASE_PATH
     base2 = process_base(base_path)
+    with open(PROCESSED_TRAIN_PATH,'w') as f:
+        base2.to_csv(f,index=False)
 
 
 
