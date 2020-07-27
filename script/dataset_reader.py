@@ -2,59 +2,28 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os,sys
+
+#%% vscode user
 os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
 print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
+TRAIN_BASE_PATH = './../dataset/raw_dataset/trainset/train_base.csv'
+TRAIN_OP_PATH = './../dataset/raw_dataset/trainset/train_op.csv'
+TRAIN_TRANS_PATH = "./../dataset/raw_dataset/trainset/train_trans.csv"
+
+SAMPLE_TRANS_PATH = "./../dataset/raw_dataset/sample_trainset/sample_trans.csv"
+
+#%% pycharm user
+# 运行目录在“工作区”
+TRAIN_BASE_PATH = './dataset/raw_dataset/trainset/train_base.csv'
+TRAIN_OP_PATH = './dataset/raw_dataset/trainset/train_op.csv'
+TRAIN_TRANS_PATH = "./dataset/raw_dataset/trainset/train_trans.csv"
+
+SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
+
 
 # %% 
-base = pd.read_csv('./../dataset/raw_dataset/trainset/train_base.csv')
-print(len(base[:]['user'].values)) # 总量
-print(base['user'].isnull().sum()) # 缺失值的数量
-print(base['sex'].isnull().sum())     
-print(base['age'].isnull().sum())  
-print(base['provider'].isnull().sum())
-print(base['level'].isnull().sum())
-print(base['verified'].isnull().sum())
-print(base['using_time'].isnull().sum())
-print(base['regist_type'].isnull().sum())
-print(base['card_a_cnt'].isnull().sum())
-print(base['card_b_cnt'].isnull().sum())
-print(base['card_c_cnt'].isnull().sum())
-print(base['card_d_cnt'].isnull().sum())
-print(base['op1_cnt'].isnull().sum())
-print(base['op2_cnt'].isnull().sum())
-print(base['service1_cnt'].isnull().sum())
-print(base['service1_amt'].isnull().sum())
-print(base['service2_cnt'].isnull().sum())
-print(base['agreement_total'].isnull().sum())
-print(base['agreement1'].isnull().sum())
-print(base['agreement2'].isnull().sum())
-print(base['agreement3'].isnull().sum())
-print(base['agreement4'].isnull().sum())
-print(base['acc_count'].isnull().sum())
-print(base['login_cnt_period1'].isnull().sum())
-print(base['login_cnt_period2'].isnull().sum())
-print(base['ip_cnt'].isnull().sum())
-print(base['login_cnt_avg'].isnull().sum())
-print(base['login_days_cnt'].isnull().sum())
-print(base['province'].isnull().sum())
-print(base['city'].isnull().sum())
-print(base['balance'].isnull().sum())
-print(base['balance_avg'].isnull().sum())
-print(base['balance1'].isnull().sum())
-print(base['balance1_avg'].isnull().sum())
-print(base['balance2'].isnull().sum())
-print(base['balance2_avg'].isnull().sum())
-print(base['service3'].isnull().sum())
-print(base['service3_level'].isnull().sum())
-print(base['product1_amount'].isnull().sum())
-print(base['product2_amount'].isnull().sum())
-print(base['product3_amount'].isnull().sum())
-print(base['product4_amount'].isnull().sum())
-print(base['product5_amount'].isnull().sum())
-print(base['product6_amount'].isnull().sum())
-print(base['product7_cnt'].isnull().sum())
-print(base['product7_fail_cnt'].isnull().sum())
-# %%
+base = pd.read_csv(TRAIN_BASE_PATH)
+
 index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
        'regist_type', 'card_a_cnt', 'card_b_cnt', 'card_c_cnt', 'agreement1',
        'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
@@ -67,10 +36,13 @@ index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
        'product5_amount', 'product6_amount', 'product7_cnt',
        'product7_fail_cnt']
 
+print("base表条目总数：",len(base[:]['user'].values)) # 总量
+print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
 for e in index:
-    print(len(base[e].value_counts()))
+    print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
+
 # %%
-csv1 = pd.read_csv('./../dataset/raw_dataset/trainset/train_op.csv')
+csv1 = pd.read_csv(TRAIN_OP_PATH)
 
 
 # %%
@@ -96,8 +68,8 @@ print(csv1['channel'].value_counts())
 print(csv1['ip_3'].value_counts())
 print(csv1['tm_diff'].value_counts())
 # %%
-trans = pd.read_csv(r"./../dataset/raw_dataset/trainset/train_trans.csv")
-sample_trans = pd.read_csv(r"./../dataset/raw_dataset/sample_trainset/sample_trans.csv")
+trans = pd.read_csv(TRAIN_TRANS_PATH)
+sample_trans = pd.read_csv(SAMPLE_TRANS_PATH)
 
 print(sample_trans.head(10))
 
@@ -111,7 +83,7 @@ def feature_plot(feature):
     plt.bar(range(len(_x)), _y)
 
     for xx, yy in zip(range(len(_x)), _y):
-        plt.text(xx, yy+5, str(yy), ha='center')
+        plt.text(xx, yy+5, str(yy), ha='ljust')
 
     plt.xticks(range(len(_x)), _x)
     plt.show()
