@@ -5,6 +5,70 @@ import os,sys
 os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
 print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
 
+# %% 
+base = pd.read_csv('./../dataset/raw_dataset/trainset/train_base.csv')
+print(len(base[:]['user'].values)) # 总量
+print(base['user'].isnull().sum()) # 缺失值的数量
+print(base['sex'].isnull().sum())     
+print(base['age'].isnull().sum())  
+print(base['provider'].isnull().sum())
+print(base['level'].isnull().sum())
+print(base['verified'].isnull().sum())
+print(base['using_time'].isnull().sum())
+print(base['regist_type'].isnull().sum())
+print(base['card_a_cnt'].isnull().sum())
+print(base['card_b_cnt'].isnull().sum())
+print(base['card_c_cnt'].isnull().sum())
+print(base['card_d_cnt'].isnull().sum())
+print(base['op1_cnt'].isnull().sum())
+print(base['op2_cnt'].isnull().sum())
+print(base['service1_cnt'].isnull().sum())
+print(base['service1_amt'].isnull().sum())
+print(base['service2_cnt'].isnull().sum())
+print(base['agreement_total'].isnull().sum())
+print(base['agreement1'].isnull().sum())
+print(base['agreement2'].isnull().sum())
+print(base['agreement3'].isnull().sum())
+print(base['agreement4'].isnull().sum())
+print(base['acc_count'].isnull().sum())
+print(base['login_cnt_period1'].isnull().sum())
+print(base['login_cnt_period2'].isnull().sum())
+print(base['ip_cnt'].isnull().sum())
+print(base['login_cnt_avg'].isnull().sum())
+print(base['login_days_cnt'].isnull().sum())
+print(base['province'].isnull().sum())
+print(base['city'].isnull().sum())
+print(base['balance'].isnull().sum())
+print(base['balance_avg'].isnull().sum())
+print(base['balance1'].isnull().sum())
+print(base['balance1_avg'].isnull().sum())
+print(base['balance2'].isnull().sum())
+print(base['balance2_avg'].isnull().sum())
+print(base['service3'].isnull().sum())
+print(base['service3_level'].isnull().sum())
+print(base['product1_amount'].isnull().sum())
+print(base['product2_amount'].isnull().sum())
+print(base['product3_amount'].isnull().sum())
+print(base['product4_amount'].isnull().sum())
+print(base['product5_amount'].isnull().sum())
+print(base['product6_amount'].isnull().sum())
+print(base['product7_cnt'].isnull().sum())
+print(base['product7_fail_cnt'].isnull().sum())
+# %%
+index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
+       'regist_type', 'card_a_cnt', 'card_b_cnt', 'card_c_cnt', 'agreement1',
+       'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
+       'service1_amt', 'service2_cnt', 'agreement2', 'agreement3',
+       'agreement4', 'acc_count', 'login_cnt_period1', 'login_cnt_period2',
+       'ip_cnt', 'login_cnt_avg', 'login_days_cnt', 'province', 'city',
+       'balance', 'balance_avg', 'balance1', 'balance1_avg', 'balance2',
+       'balance2_avg', 'service3', 'service3_level', 'product1_amount',
+       'product2_amount', 'product3_amount', 'product4_amount',
+       'product5_amount', 'product6_amount', 'product7_cnt',
+       'product7_fail_cnt']
+
+for e in index:
+    print(len(base[e].value_counts()))
 # %%
 csv1 = pd.read_csv('./../dataset/raw_dataset/trainset/train_op.csv')
 
