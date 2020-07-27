@@ -2,8 +2,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os,sys
-#os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
-#print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
+os.chdir(sys.path[0]) # 把运行目录强制转移到当前脚本所在文件夹
+print(f"工作路径切换到当前脚本路径: {os.getcwd()}")
 
 # %%
 csv1 = pd.read_csv('./../dataset/raw_dataset/trainset/train_op.csv')
