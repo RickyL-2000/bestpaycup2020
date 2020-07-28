@@ -11,15 +11,20 @@ workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
 os.chdir(workspace_path) # 把运行目录强制转移到【工作区】
 print(f"把运行目录强制转移到【工作区】{os.getcwd()}")
 
-TRAIN_BASE_PATH = './dataset/raw_dataset/trainset/train_base.csv'
-TRAIN_OP_PATH = './dataset/raw_dataset/trainset/train_op.csv'
-TRAIN_TRANS_PATH = "./dataset/raw_dataset/trainset/train_trans.csv"
+TRAIN_BASE_PATH     = "./dataset/raw_dataset/trainset/train_base.csv"
+TRAIN_OP_PATH       = "./dataset/raw_dataset/trainset/train_op.csv"
+TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
 
-SAMPLE_BASE_PATH = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
-SAMPLE_OP_PATH = './dataset/raw_dataset/trainset/sample_op.csv'
-SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
+TEST_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
 
-PROCESSED_TRAIN_PATH = "./dataset/dataset1/trainset/train_trans.csv"
+SAMPLE_BASE_PATH    = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
+SAMPLE_OP_PATH      = "./dataset/raw_dataset/sample_trainset/sample_op.csv"
+SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
+
+PROCESSED_TRAIN_BASE_PATH = "./dataset/dataset1/trainset/train_base.csv"
+PROCESSED_TEST_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
 
 
 # %%
@@ -65,11 +70,12 @@ def process_trans():
 
 # %%
 if __name__ == "__main__":
-    # base_path = SAMPLE_BASE_PATH
-    base_path = TRAIN_BASE_PATH
-    base2 = process_base(base_path)
-    with open(PROCESSED_TRAIN_PATH,'w') as f:
-        base2.to_csv(f,index=False)
+    for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
+        base2 = process_base(base_path)
+        if not os.path.exists(os.path.split(processed_base_path)[0]):
+            os.makedirs(os.path.split(processed_base_path)[0])
+        with open(processed_base_path,"w") as f:
+            base2.to_csv(f,index=False)
 
 
 

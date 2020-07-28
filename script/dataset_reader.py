@@ -10,14 +10,17 @@ workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
 os.chdir(workspace_path) # 把运行目录强制转移到【工作区】
 print(f"把运行目录强制转移到【工作区】{os.getcwd()}")
 
-TRAIN_BASE_PATH = './dataset/raw_dataset/trainset/train_base.csv'
-TRAIN_OP_PATH = './dataset/raw_dataset/trainset/train_op.csv'
-TRAIN_TRANS_PATH = "./dataset/raw_dataset/trainset/train_trans.csv"
+TRAIN_BASE_PATH     = './dataset/raw_dataset/trainset/train_base.csv'
+TRAIN_OP_PATH       = './dataset/raw_dataset/trainset/train_op.csv'
+TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
 
-SAMPLE_BASE_PATH = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
-SAMPLE_OP_PATH = './dataset/raw_dataset/trainset/sample_op.csv'
-SAMPLE_TRANS_PATH = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
+TEST_BASE_PATH      = './dataset/raw_dataset/testset/test_a_base.csv'
+TEST_OP_PATH        = './dataset/raw_dataset/testset/test_a_op.csv'
+TEST_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
 
+SAMPLE_BASE_PATH    = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
+SAMPLE_OP_PATH      = './dataset/raw_dataset/sample_trainset/sample_op.csv'
+SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 # %% 
 base = pd.read_csv(TRAIN_BASE_PATH)
