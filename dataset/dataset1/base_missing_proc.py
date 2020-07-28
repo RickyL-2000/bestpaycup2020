@@ -60,24 +60,13 @@ def process_base(base_path,verbose=False):
         print(base2.discribe())
     return base2
 
-# %%
-def process_op():
-    pass
-
-
-# %%
-def process_trans():
-    pass
-
-
-# %%
-if __name__ == "__main__":
-    for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
-        base2 = process_base(base_path)
-        if not os.path.exists(os.path.split(processed_base_path)[0]):
-            os.makedirs(os.path.split(processed_base_path)[0])
-        with open(processed_base_path,"w") as f:
-            base2.to_csv(f,index=False)
+#%%
+for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
+    base2 = process_base(base_path)
+    if not os.path.exists(os.path.split(processed_base_path)[0]):
+        os.makedirs(os.path.split(processed_base_path)[0])
+    with open(processed_base_path,"w") as f:
+        base2.to_csv(f,index=False)
 
 
 # %%
