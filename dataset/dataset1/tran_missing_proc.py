@@ -79,5 +79,19 @@ a.columns=['type2_1','type2_2','type2_3','type2_4','type2_5','type2_6','type2_7'
 trans = pd.concat([trans,a],axis=1)
 trans = trans.drop(['type2'],axis=1)
 trans.head()
-trans.to_csv(path_or_buf='./../dataset1/train_trans.csv')
+trans.to_csv(path_or_buf='./../dataset1/trainset/train_trans.csv')
+# %%
+TRAIN_TRANS_PATH = "./../raw_dataset/testset/test_a_trans.csv"
+trans = pd.read_csv(TRAIN_TRANS_PATH)
+trans = trans.drop(['ip'],axis=1)
+trans = trans.drop(['ip_3'],axis=1)
+p = trans['type2'].fillna('a')
+trans['type2'] = p 
+p = trans['tunnel_out'].fillna('6ee790756007e69a')
+trans['tunnel_out'] = p 
+p = trans['tunnel_in'].fillna('a')
+trans['tunnel_in'] = p 
+trans.head()
+trans.to_csv(path_or_buf='./../dataset1/test_a_trans.csv')
+
 # %%
