@@ -41,16 +41,16 @@ train_y = data_y[:int(0.9 * n), 1:]
 val_x = data_x[int(0.9 * n):, 1:]
 val_y = data_y[int(0.9 * n):, 1:]
 train_x = train_x.astype(float)
-train_y = train_y.astype(float).reshape(1, -1)
+train_y = train_y.astype(float).reshape(1, -1)[0]
 val_x = val_x.astype(float)
-val_y = val_y.astype(float).reshape(1, -1)
+val_y = val_y.astype(float).reshape(1, -1)[0]
 
 
 # %%
 class LR(nn.Module):
     def __init__(self):
         super(LR, self).__init__()
-        self.fc = nn.Linear(123, 1)
+        self.fc = nn.Linear(123, 2)
 
     def forward(self, x):
         out = self.fc(x)
@@ -59,15 +59,16 @@ class LR(nn.Module):
 
 
 # %%
-def get_score(pred, lab):
-    return roc_auc_score(pred, lab)
+def test(pred, lab):
+    t = pred.max(-1)[1] == lab
+    return torch.mean(t.float())
 
 
 # %%
 net = LR()
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
-epochs = 1000
+epochs = 2000
 
 # %%
 # train
@@ -76,20 +77,39 @@ for i in range(epochs):
     x = torch.from_numpy(train_x).float()
     y = torch.from_numpy(train_y).long()
     y_hat = net(x)
-    loss = criterion(y_hat.reshape(1, -1), y)
+    loss = criterion(y_hat, y)
     optm.zero_grad()
     loss.backward()
     optm.step()
     if (i+1) % 100 == 0:
         net.eval()
-        test_in = torch.from_numpy(val_x).float()
-        test_l = torch.from_numpy(val_y).long()
-        test_out = net(test_in)
-        score = get_score(test_out.detach().numpy(), test_in.detach().numpy())
-        print("Epoch:{},Loss:{:.4f},Accuracy：{:.2f}".format(i + 1, loss.item(), score))
+        val_in = torch.from_numpy(val_x).float()
+        val_lab = torch.from_numpy(val_y).long()
+        val_out = net(val_in)
+        accur = test(val_out, val_lab)
+        print("Epoch:{},Loss:{:.4f},Accuracy：{:.2f}".format(i + 1, loss.item(), accur))
+
+# %%
+# 测试集
+test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv'))
+y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example.csv')
+
+# %%
+test_x = test_x[test_x[:, 0].argsort()]
+n_t, l_t = test_x.shape
+for j in range(l_t):
+    meanVal = np.mean(test_x[:, j])
+    stdVal = np.std(test_x[:, j])
+    test_x[:, j] = (test_x[:, j] - meanVal) / stdVal
+
+# %%
+test_in = torch.from_numpy(test_x).float()
+test_out = net(test_in)
 
 
 # %%
+"""---------------------以下为试水部分-------------------------"""
+
 arr = np.array([[1, 2, 3],
                 [3, 2, 1],
                 [2, 1, 3]])
