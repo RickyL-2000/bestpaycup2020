@@ -33,7 +33,7 @@ PROCESSED_TEST_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
 def process_base(base_path,verbose=False):
     def to_int(entry):
         if type(entry) is str:
-            level = re.search("^(category|level) ([0-9]+)",entry)
+            level = re.search("^(category |level |Train_|TestA_)([0-9]+)",entry)
             if level:
                 return int(level.group(2))
         return entry
