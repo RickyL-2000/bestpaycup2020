@@ -37,11 +37,20 @@ class OpPreProc:
             else:
                 self.df = pd.read_csv(self.base_dir + r'/dataset/raw_dataset/testset/test_a_op.csv')
             self.n, self.p = self.df.shape[0], self.df.shape[1]
-        self.df_org = self.df.copy(deep=True)
+        # self.df_org = self.df.copy(deep=True)
+
+    def writeDF(self):
+        if self.isTrain:
+            self.df.to_csv(self.base_dir + '/dataset/dataset1/trainset/train_op.csv', index=False)
+        else:
+            self.df.to_csv(self.base_dir + '/dataset/dataset1/testset/test_a_op.csv', index=False)
 
     def user_proc(self):
         for i in range(self.n):
+            if i % 1000 == 0:
+                print(i)
             self.df.loc[i, 'user'] = self.df.loc[i, 'user'][6:]
+        # self.df.loc[:, 'user'] = self.df.loc[:, 'user'][6:]
 
     def op_type_proc(self):
         """对op_type进行整数赋值，方便之后的随机森林"""
@@ -54,6 +63,9 @@ class OpPreProc:
         values = self.df['op_mode'].unique().tolist()
         m = dict(zip(values, range(len(values))))
         self.df['op_mode'] = self.df['op_mode'].map(lambda x: m[x])
+
+    def op_device_dummy(self):
+        self.df = self.df.fillna({'op_device': 'op_device_nan'})
 
     def op_device_proc(self, dim=50):
         """
@@ -80,12 +92,12 @@ class OpPreProc:
             code = mp[self.df.loc[i, 'op_device']]
             newdf.loc[len(newdf)] = code
         self.df = self.df.join(newdf)
-        self.df = self.df.drop(labels='op_device')
+        self.df = self.df.drop(labels='op_device', axis=1)
         # 选择随机森林的输入数据
         X = self.df[['op_type', 'op_mode', 'net_type_0', 'net_type_1', 'net_type_2', 'net_type_3', 'channel',
                      'tm_dff']].loc[(self.df['op_device_0'].notnull())].values
         isnull_x = self.df[['op_type', 'op_mode', 'net_type_0', 'net_type_1', 'net_type_2', 'net_type_3', 'channel',
-                     'tm_dff']].loc[(self.df['op_device_0'].isnull())].values
+                            'tm_dff']].loc[(self.df['op_device_0'].isnull())].values
         Y_list = [self.df['op_device_' + str(i)].loc[(self.df['op_device'].notnull())].values for i in range(dim)]
         # x_df = self.df[['op_type', 'op_mode', 'net_type_0',
         #                 'net_type_1', 'net_type_2', 'net_type_3',
@@ -102,6 +114,7 @@ class OpPreProc:
         """先哑变量填充，再one-hot编码"""
         # 将缺失值全部替换成'net_type_nan'
         self.df = self.df.fillna({'net_type': 'net_type_nan'})
+        '''
         # 进行独热编码
         # 首先进行整数赋值，方便重命名列名，如此一来dummy列的名称就变成了net_type_x
         values = self.df['net_type'].unique().tolist()
@@ -109,15 +122,18 @@ class OpPreProc:
         self.df['channel'] = self.df['channel'].map(lambda x: m[x])
         # 再进行编码
         self.df = self.df.join(pd.get_dummies(self.df.net_type))
-        self.df = self.df.drop(labels='net_type_proc', axis=1)
+        self.df = self.df.drop(labels='net_type', axis=1)
+        '''
 
     def channel_proc(self):
         mode = self.df['channel'].mode()    # 众数赋值
         self.df = self.df.fillna({'channel': mode})
         # 整数赋值，方便随机森林
+        '''
         values = self.df['channel'].unique().tolist()
         m = dict(zip(values, range(len(values))))
         self.df['channel'] = self.df['channel'].map(lambda x: m[x])
+        '''
 
     def tm_diff_proc(self):
         for i in range(self.n):
@@ -131,7 +147,12 @@ class OpPreProc:
 
     def main(self):
         self.readDF()
-        pass
+        # self.user_proc()
+        self.op_device_dummy()
+        self.net_type_proc()
+        self.channel_proc()
+        self.tm_diff_proc()
+        self.writeDF()
 
     def test(self):
         self.readDF()
@@ -142,13 +163,15 @@ class OpPreProc:
 # %%
 if __name__ == "__main__":
     base_dir = os.getcwd()  # 工作区路径
-    trainset_main = OpPreProc(base_dir, isTrain=True, isSample=True)
-    trainset_main.test()
+    trainset_main = OpPreProc(base_dir, isTrain=True, isSample=False)
+    trainset_main.main()
+
 
 
 # %%
 """以下为试水专用"""
 
+'''
 # %%
 df = pd.read_csv(r"./dataset/raw_dataset/sample_trainset/sample_op.csv")
 key = df['op_type'].unique().tolist()
@@ -185,3 +208,10 @@ print(len(df))
 # %%
 df = pd.read_csv(r"./dataset/raw_dataset/sample_trainset/sample_op.csv")
 print(df['op_device'].notnull())
+
+# %%
+df = pd.read_csv(r"./dataset/raw_dataset/sample_trainset/sample_op.csv")
+df.loc[:, 'user'] = df.loc[:, 'user'][6:]
+print(df)
+
+'''
