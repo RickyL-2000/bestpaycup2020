@@ -129,32 +129,3 @@ def process_base_onehot(base_dir, dim):
 # %%
 process_base_onehot(os.getcwd(), dim=50)
 
-
-# %%
-def process_base_user(base_dir):
-    train_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv')
-    test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv')
-    for i in range(len(train_df)):
-        train_df.loc[i, 'user'] = train_df.loc[i, 'user'][6:]
-    for i in range(len(test_df)):
-        test_df.loc[i, 'user'] = test_df.loc[i, 'user'][6:]
-    train_df['user'] = pd.to_numeric(train_df['user'])
-    test_df['user'] = pd.to_numeric(test_df['user'])
-    train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv', index=False)
-    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv', index=False)
-
-
-# %%
-process_base_user(os.getcwd())
-
-# %%
-train_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv')
-test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv')
-train_df['user'] = pd.to_numeric(train_df['user'])
-test_df['user'] = pd.to_numeric(test_df['user'])
-train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv', index=False)
-test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv', index=False)
-
-# %%
-train_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv')
-print(train_df.info())
