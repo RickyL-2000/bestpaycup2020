@@ -31,6 +31,7 @@ PROCESSED_TEST_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
 
 # %%
 def process_base(base_path,verbose=False):
+    # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
         if type(entry) is str:
             level = re.search("^(category |level |Train_|TestA_)([0-9]+)",entry)
@@ -60,6 +61,7 @@ def process_base(base_path,verbose=False):
         print(base2.discribe())
     return base2
 
+
 #%%
 for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
     base2 = process_base(base_path)
@@ -83,7 +85,7 @@ def process_base_onehot(base_dir, dim):
     train_df = train_df.drop(labels='province', axis=1)
 
     test_df['province'] = test_df['province'].map(lambda x: m_pro[x])
-    test_df = test_df.join(pd.get_dummies((test_df['province'])))
+    test_df = test_df.join(pd.get_dummies(test_df['province']))
     test_df = test_df.drop(labels='province', axis=1)
 
     values_ct_org = city.unique().tolist()
@@ -111,10 +113,20 @@ def process_base_onehot(base_dir, dim):
     test_df = test_df.join(newdf_test)
     test_df = test_df.drop(labels='city', axis=1)
 
-    train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv', index=False)
-    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv', index=False)
+    train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv', index=False)
+    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
 
 
 # %%
 process_base_onehot(os.getcwd(), dim=50)
 
+
+# %%
+def delete_pro_31(base_dir):
+    test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
+    test_df = test_df.drop(labels='31', axis=1)
+    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
+
+
+# %%
+delete_pro_31(base_dir=os.getcwd())
