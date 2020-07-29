@@ -60,6 +60,7 @@ def process_base(base_path,verbose=False):
         print(base2.discribe())
     return base2
 
+
 # %%
 def process_op():
     pass
@@ -94,7 +95,7 @@ def process_base_onehot(base_dir, dim):
     train_df = train_df.drop(labels='province', axis=1)
 
     test_df['province'] = test_df['province'].map(lambda x: m_pro[x])
-    test_df = test_df.join(pd.get_dummies((test_df['province'])))
+    test_df = test_df.join(pd.get_dummies(test_df['province']))
     test_df = test_df.drop(labels='province', axis=1)
 
     values_ct_org = city.unique().tolist()
@@ -122,8 +123,8 @@ def process_base_onehot(base_dir, dim):
     test_df = test_df.join(newdf_test)
     test_df = test_df.drop(labels='city', axis=1)
 
-    train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base2.csv', index=False)
-    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base2.csv', index=False)
+    train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv', index=False)
+    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
 
 
 # %%
