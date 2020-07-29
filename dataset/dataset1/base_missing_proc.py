@@ -60,6 +60,7 @@ def process_base(base_path,verbose=False):
         print(base2.discribe())
     return base2
 
+
 #%%
 for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
     base2 = process_base(base_path)
@@ -118,3 +119,13 @@ def process_base_onehot(base_dir, dim):
 # %%
 process_base_onehot(os.getcwd(), dim=50)
 
+
+# %%
+def delete_pro_31(base_dir):
+    test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
+    test_df = test_df.drop(labels='31', axis=1)
+    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
+
+
+# %%
+delete_pro_31(base_dir=os.getcwd())
