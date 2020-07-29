@@ -147,7 +147,7 @@ class OpPreProc:
 
     def main(self):
         self.readDF()
-        # self.user_proc()
+        self.user_proc()
         self.op_device_dummy()
         self.net_type_proc()
         self.channel_proc()
@@ -163,7 +163,7 @@ class OpPreProc:
 # %%
 if __name__ == "__main__":
     base_dir = os.getcwd()  # 工作区路径
-    trainset_main = OpPreProc(base_dir, isTrain=True, isSample=False)
+    trainset_main = OpPreProc(base_dir, isTrain=False, isSample=False)
     trainset_main.main()
 
 
