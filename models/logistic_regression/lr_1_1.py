@@ -59,7 +59,7 @@ def test(pred, lab):
 def get_score(pred, lab):
     pred = F.softmax(pred, dim=1).detach().numpy()
     lab = lab.detach().numpy()
-    return roc_auc_score(pred[:, 1], lab)
+    return roc_auc_score(lab, pred[:, 1])
 
 
 # %%
@@ -111,6 +111,8 @@ for j in range(l_t):
 
 # %%
 test_in = torch.from_numpy(test_x).float()
+
+# %%
 test_out = net(test_in)
 pred = F.softmax(test_out, dim=1).detach().numpy()[:, 1]
 y_df.loc[:, 'prob'] = pred
@@ -134,3 +136,11 @@ print(arr[0])
 # %%
 print(y_hat.reshape(1, -1)[0])
 print(y)
+
+# %%
+temp_pd = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
+print(temp_pd.isnull().sum())
+
+# %%
+temp_pd2 = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/test_a_base.csv')
+print(temp_pd2.isnull().sum())
