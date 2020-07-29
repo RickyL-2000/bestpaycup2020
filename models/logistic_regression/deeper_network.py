@@ -43,15 +43,12 @@ np.random.shuffle(data_y)
 class LR(nn.Module):
     def __init__(self):
         super(LR, self).__init__()
-        self.fc1 = nn.Linear(123, 64)
-        self.fc2 = nn.Linear(64, 16)
-        self.fc3 = nn.Linear(16, 2)
+        self.fc1 = nn.Linear(123, 32)
+        self.fc2 = nn.Linear(32, 2)
     def forward(self, x):
         out = self.fc1(x)
         out = torch.sigmoid(out)
         out = self.fc2(out)
-        out = torch.sigmoid(out)
-        out = self.fc3(out)
         out = torch.sigmoid(out)
         return out
 
@@ -72,7 +69,7 @@ def get_score(pred, lab):
 net = LR()
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
-epochs = 8000
+epochs = 30000
 group_n = 10
 group_size = epochs // group_n
 

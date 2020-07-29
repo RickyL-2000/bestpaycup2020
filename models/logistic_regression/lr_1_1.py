@@ -119,29 +119,3 @@ pred = F.softmax(test_out, dim=1).detach().numpy()[:, 1]
 y_df.loc[:, 'prob'] = pred
 y_df.to_csv(base_dir + '/models/logistic_regression/output_1_1_1.csv', index=False)
 
-
-# %%
-"""---------------------以下为试水部分-------------------------"""
-
-arr = np.array([[1, 2, 3],
-                [3, 2, 1],
-                [2, 1, 3]])
-arr = arr[arr[:, 0].argsort()]
-print(arr)
-
-# %%
-arr = np.array([[1], [2], [3]])
-arr = arr.reshape(1, -1)
-print(arr[0])
-
-# %%
-print(y_hat.reshape(1, -1)[0])
-print(y)
-
-# %%
-temp_pd = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
-print(temp_pd.isnull().sum())
-
-# %%
-temp_pd2 = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/test_a_base.csv')
-print(temp_pd2.isnull().sum())
