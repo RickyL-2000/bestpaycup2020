@@ -13,6 +13,8 @@ dataset/dataset1/*
 !dataset/dataset1/*.py
 !dataset/dataset1/*.md
 
+tools/
+
 # dataset2
 dataset/dataset2/*
 !dataset/dataset2/sample_trainset/
