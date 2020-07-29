@@ -72,7 +72,7 @@ def get_score(pred, lab):
 net = LR()
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
-epochs = 2000
+epochs = 8000
 group_n = 10
 group_size = epochs // group_n
 

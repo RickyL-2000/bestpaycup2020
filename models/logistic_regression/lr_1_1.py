@@ -9,6 +9,7 @@ from sklearn.metrics import roc_auc_score
 
 # %%
 base_dir = os.getcwd()
+base_dir = '/Users/jason/bestpaycup2020'
 x_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv')
 y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/trainset/train_label.csv')
 data_x = np.array(x_df)
@@ -66,7 +67,7 @@ def get_score(pred, lab):
 net = LR()
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
-epochs = 2000
+epochs = 30000
 group_n = 10
 group_size = epochs // group_n
 
