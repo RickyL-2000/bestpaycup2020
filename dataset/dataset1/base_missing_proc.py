@@ -31,6 +31,7 @@ PROCESSED_TEST_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
 
 # %%
 def process_base(base_path,verbose=False):
+    # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
         if type(entry) is str:
             level = re.search("^(category |level |Train_|TestA_)([0-9]+)",entry)
