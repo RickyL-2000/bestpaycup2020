@@ -2,6 +2,7 @@
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 import os
 from sklearn.metrics import roc_auc_score
@@ -56,7 +57,7 @@ def test(pred, lab):
 
 
 def get_score(pred, lab):
-    pred = nn.Softmax(pred).detach().numpy()
+    pred = F.softmax(pred, dim=1).detach().numpy()
     lab = lab.detach().numpy()
     return roc_auc_score(pred[:, 1], lab)
 
@@ -73,7 +74,7 @@ group_size = epochs // group_n
 # train
 for j in range(group_n):
     # 交叉验证
-    train_x = np.append(data_x[:j*group_size, :], data_x[(j+1)*group_size:, :])
+    train_x = np.concatenate((data_x[:j*group_size, :], data_x[(j+1)*group_size:, :]), axis=0)
     train_y = np.append(data_y[:j*group_size], data_y[(j+1)*group_size:])
     val_x = data_x[j*group_size: (j+1)*group_size, :]
     val_y = data_y[j*group_size: (j+1)*group_size]
@@ -111,7 +112,7 @@ for j in range(l_t):
 # %%
 test_in = torch.from_numpy(test_x).float()
 test_out = net(test_in)
-pred = nn.Softmax(test_out).detach().numpy()[:, 1]
+pred = F.softmax(test_out, dim=1).detach().numpy()[:, 1]
 y_df.loc[:, 'prob'] = pred
 y_df.to_csv(base_dir + '/models/logistic_regression/output_1_1.csv')
 
