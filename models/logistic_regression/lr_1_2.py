@@ -119,7 +119,7 @@ test_in = torch.from_numpy(test_x).float()
 test_out = net(test_in)
 pred = F.softmax(test_out, dim=1).detach().numpy()[:, 1]
 y_df.loc[:, 'prob'] = pred
-y_df.to_csv(base_dir + '/models/logistic_regression/output_1_1_1.csv', index=False)
+y_df.to_csv(base_dir + '/models/logistic_regression/output_1_2_1.csv', index=False)
 print("???")
 
 # %%
