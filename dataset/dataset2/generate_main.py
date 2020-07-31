@@ -387,3 +387,15 @@ def process(n, isTrain=True):
 process(n_train, isTrain=True)
 process(n_test, isTrain=False)
 
+# %%
+# 并入主矩阵
+feature_train = feature_train.drop(labels='user', axis=1)
+feature_test = feature_test.drop(labels='user', axis=1)
+
+train_base_df = train_base_df.join(feature_train)
+test_base_df = test_base_df.join(feature_test)
+
+train_base_df.to_csv(base_dir + '/dataset/dataset2/trainset/train_main.csv', index=False)
+test_base_df.to_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv', index=False)
+
+# %%
