@@ -94,12 +94,105 @@ for i in range(type2.shape[0]):
 # train set
 for i in range(train_n):
     cur_user = train_base_df['user'].loc[i]
-    tr_trans_user = train_trans_df[train_trans_df['user'] == cur_user]
-    tr_op_user = train_op_df[train_op_df['user'] == cur_user]
+    tr_trans_user = train_trans_df[train_trans_df['user'] == cur_user]  # 该用户的trans记录
+    tr_op_user = train_op_df[train_op_df['user'] == cur_user]           # 该用户的op记录
+    line = []   # 一行，即当前用户的所有二次特征
 
-    tr_trans_user_n = len(tr_trans_user)    # 该用户的trans记录条数
-    tr_op_user_n = len(tr_op_user)          # 该用户的trans记录条数
+    n_tr_trans_user = len(tr_trans_user)    # 该用户的trans记录条数
+    n_tr_op_user = len(tr_op_user)          # 该用户的op记录条数
 
-    # -----------op_type----------- #
-    op_type_df = pd.DataFrame(columns=['op_type_' + str(i) for i in range(10)])
+    ### op_type
+    mode_op_type = tr_op_user['op_type'].mode()[0]
+    code = mp_op_type[mode_op_type]
+    line.extend(code)
+
+    line.append(sum(tr_op_user['op_type'].apply(lambda x: 1 if x == mode_op_type else 0)) / n_tr_op_user)
+
+    s = tr_op_user['op_type'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(len(s))
+
+    ### op_mode
+    mode_op_mode = tr_op_user['op_mode'].mode()[0]
+    code = mp_op_mode[mode_op_mode]
+    line.extend(code)
+
+    line.append(sum(tr_op_user['op_mode'].apply(lambda x: 1 if x == mode_op_mode else 0)) / n_tr_op_user)
+
+    s = tr_op_user['op_mode'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(len(s))
+
+    ### op_device
+    mode_op_device = tr_op_user['op_device'].mode()[0]
+    line.append(sum(tr_op_user['op_device'].apply(lambda x: 1 if x == mode_op_device else 0)) / n_tr_op_user)
+
+    s = tr_op_user['op_device'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(tr_op_user['op_device'].isnull().sum() / n_tr_op_user)
+
+    line.append(len(s))
+
+    ### op_ip
+    mode_op_ip = tr_op_user['ip'].mode()[0]
+    line.append(sum(tr_op_user['ip'].apply(lambda x: 1 if x == mode_op_ip else 0)) / n_tr_op_user)
+
+    s = tr_op_user['ip'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(tr_op_user['ip'].isnull().sum() / n_tr_op_user)
+
+    line.append(len(s))
+    n_ip = len(s)
+
+    ### op_net_type
+    mode_op_net_type = tr_op_user['net_type'].mode()[0]
+    code = mp_net_type[mode_op_net_type]
+    line.extend(code)
+
+    line.append(sum(tr_op_user['net_type'].apply(lambda x: 1 if x == mode_op_net_type else 0)) / n_tr_op_user)
+
+    s = tr_op_user['net_type'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(tr_op_user['net_type'].isnull().sum() / n_tr_op_user)
+
+    ### channel
+    mode_op_channel = tr_op_user['channel'].mode()[0]
+    code = mp_channel[mode_op_channel]
+    line.extend(code)
+
+    line.append(sum(tr_op_user['channel'].apply(lambda x: 1 if x == mode_op_channel else 0)) / n_tr_op_user)
+
+    s = tr_op_user['channel'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(len(s))
+
+    ### ip_3
+    mode_op_ip_3 = tr_op_user['ip_3'].mode()[0]
+    line.append(sum(tr_op_user['ip_3'].apply(lambda x: 1 if x == mode_op_ip_3 else 0)) / n_tr_op_user)
+
+    s = tr_op_user['ip_3'].value_counts()
+    line.append(np.std(s.values))
+
+    line.append(tr_op_user['ip_3'].isnull().sum() / n_tr_op_user)
+
+    line.append(len(s))
+    n_ip_3 = len(s)
+
+    ### tm_diff
+    tr_op_tm_max = tr_op_user['tm_diff'].values.max()
+    tr_op_tm_min = tr_op_user['tm_diff'].values.min()
+    coef = 3600 * 24 / (tr_op_tm_max - tr_op_tm_min)
+    line.append(n_tr_op_user * coef)
+
+    line.append(n_ip * coef)
+
+    line.append(n_ip_3 * coef)
+
+    # 对tm_diff排序
 
