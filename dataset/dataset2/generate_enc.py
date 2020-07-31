@@ -29,7 +29,7 @@ result_op_type = pca_op_type.transform(onehot_op_type)
 mp_op_type = dict(zip(values_op_type_org, [code for code in result_op_type]))
 
 pd.DataFrame.from_dict(data=mp_op_type, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_type.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_type.csv', index=False)
 
 # %%
 # op_mode onehot+pca
@@ -48,7 +48,7 @@ result_op_mode = pca_op_mode.transform(onehot_op_mode)
 mp_op_mode = dict(zip(values_op_mode_org, [code for code in result_op_mode]))
 
 pd.DataFrame.from_dict(data=mp_op_mode, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_mode.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_mode.csv', index=False)
 
 # %%
 # net_type onehot
@@ -58,11 +58,11 @@ values_net_type_org = net_type.unique().tolist()
 values_net_type = np.array(values_net_type_org).reshape(len(values_net_type_org), -1)
 enc_net_type = OneHotEncoder()
 enc_net_type.fit(values_net_type)
-onehot_net_type = enc_net_type.transform(values_net_type)
+onehot_net_type = enc_net_type.transform(values_net_type).toarray()
 mp_op_net_type = dict(zip(values_net_type_org, [code for code in onehot_net_type]))
 
 pd.DataFrame.from_dict(data=mp_op_net_type, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_net_type.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_net_type.csv', index=False)
 
 # %%
 # op_channel onehot+pca
@@ -81,7 +81,7 @@ result_channel = pca_channel.transform(onehot_channel)
 mp_op_channel = dict(zip(values_channel_org, [code for code in result_channel]))
 
 pd.DataFrame.from_dict(data=mp_op_channel, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_channel.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_op_channel.csv', index=False)
 
 # %%
 # tran_platform onehot
@@ -91,11 +91,11 @@ values_platform_org = platform.unique().tolist()
 values_platform = np.array(values_platform_org).reshape(len(values_platform_org), -1)
 enc_platform = OneHotEncoder()
 enc_platform.fit(values_platform)
-onehot_platform = enc_platform.transform(values_platform)
+onehot_platform = enc_platform.transform(values_platform).toarray()
 mp_trans_platform = dict(zip(values_platform_org, [code for code in onehot_platform]))
 
 pd.DataFrame.from_dict(data=mp_trans_platform, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_platform.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_platform.csv', index=False)
 
 # %%
 # tunnel_in onehot
@@ -105,11 +105,11 @@ values_tunnel_in_org = tunnel_in.unique().tolist()
 values_tunnel_in = np.array(values_tunnel_in_org).reshape(len(values_tunnel_in_org), -1)
 enc_tunnel_in = OneHotEncoder()
 enc_tunnel_in.fit(values_tunnel_in)
-onehot_tunnel_in = enc_tunnel_in.transform(values_tunnel_in)
+onehot_tunnel_in = enc_tunnel_in.transform(values_tunnel_in).toarray()
 mp_trans_tunnel_in = dict(zip(values_tunnel_in_org, [code for code in onehot_tunnel_in]))
 
 pd.DataFrame.from_dict(data=mp_trans_tunnel_in, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_in.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_in.csv', index=False)
 
 # %%
 # tunnel_out onehot
@@ -119,11 +119,11 @@ values_tunnel_out_org = tunnel_out.unique().tolist()
 values_tunnel_out = np.array(values_tunnel_out_org).reshape(len(values_tunnel_out_org), -1)
 enc_tunnel_out = OneHotEncoder()
 enc_tunnel_out.fit(values_tunnel_out)
-onehot_tunnel_out = enc_tunnel_out.transform(values_tunnel_out)
+onehot_tunnel_out = enc_tunnel_out.transform(values_tunnel_out).toarray()
 mp_trans_tunnel_out = dict(zip(values_tunnel_out_org, [code for code in onehot_tunnel_out]))
 
 pd.DataFrame.from_dict(data=mp_trans_tunnel_out, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_out.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_out.csv', index=False)
 
 # %%
 # trans_type1 onehot+pca
@@ -142,7 +142,7 @@ result_type1 = pca_type1.transform(onehot_type1)
 mp_trans_type1 = dict(zip(values_type1_org, [code for code in result_type1]))
 
 pd.DataFrame.from_dict(data=mp_trans_type1, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type1.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type1.csv', index=False)
 
 # %%
 type2 = pd.concat([train_trans_df['type2'], test_trans_df['type2']])
@@ -160,4 +160,6 @@ result_type2 = pca_type2.transform(onehot_type2)
 mp_trans_type2 = dict(zip(values_type2_org, [code for code in result_type2]))
 
 pd.DataFrame.from_dict(data=mp_trans_type2, orient='columns')\
-    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type2.csv')
+    .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type2.csv', index=False)
+
+# %%

@@ -2,8 +2,6 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.decomposition import PCA
 base_dir = os.getcwd()
 
 # %%
@@ -42,54 +40,54 @@ n_test = len(test_base_df)
 
 # %%
 # load encoder
-op_type = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_op_type.csv', delimiter=',')
+op_type = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_op_type.csv')
 mp_op_type = {}
-for i in range(op_type.shape[0]):
-    mp_op_type[op_type[i, 0]] = op_type[i, 1:].tolist()
+for col in op_type.columns.values:
+    mp_op_type[col] = op_type[col].values
 
-op_mode = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_op_mode.csv', delimiter=',')
+op_mode = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_op_mode.csv')
 mp_op_mode = {}
-for i in range(op_mode.shape[0]):
-    mp_op_mode[op_mode[i, 0]] = op_mode[i, 1:].tolist()
+for col in op_mode.columns.values:
+    mp_op_mode[col] = op_mode[col].values
 
-net_type = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_net_type.csv', delimiter=',')
+net_type = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_op_net_type.csv')
 mp_net_type = {}
-for i in range(net_type.shape[0]):
-    mp_net_type[net_type[i, 0]] = net_type[i, 1:].tolist()
+for col in net_type.columns.values:
+    mp_net_type[col] = net_type[col].values
 
-channel = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_channel.csv', delimiter=',')
+channel = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_op_channel.csv')
 mp_channel = {}
-for i in range(channel.shape[0]):
-    mp_channel[channel[i, 0]] = channel[i, 1:].tolist()
+for col in channel.columns.values:
+    mp_channel[col] = channel[col].values
 
-platform = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_platform.csv', delimiter=',')
+platform = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_platform.csv')
 mp_platform = {}
-for i in range(platform.shape[0]):
-    mp_platform[platform[i, 0]] = platform[i, 1:].tolist()
+for col in platform.columns.values:
+    mp_platform[col] = platform[col].values
 
-tunnel_in = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_tunnel_in.csv', delimiter=',')
+tunnel_in = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_in.csv')
 mp_tunnel_in = {}
-for i in range(tunnel_in.shape[0]):
-    mp_tunnel_in[tunnel_in[i, 0]] = tunnel_in[i, 1:].tolist()
+for col in tunnel_in.columns.values:
+    mp_tunnel_in[col] = tunnel_in[col].values
 
-tunnel_out = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_tunnel_out.csv', delimiter=',')
+tunnel_out = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_tunnel_out.csv')
 mp_tunnel_out = {}
-for i in range(tunnel_out.shape[0]):
-    mp_tunnel_out[tunnel_out[i, 0]] = tunnel_out[i, 1:].tolist()
+for col in tunnel_out.columns.values:
+    mp_tunnel_out[col] = tunnel_out[col].values
 
-type1 = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_type1.csv', delimiter=',')
+type1 = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type1.csv')
 mp_type1 = {}
-for i in range(type1.shape[0]):
-    mp_type1[type1[i, 0]] = type1[i, 1:].tolist()
+for col in type1.columns.values:
+    mp_type1[col] = type1[col].values
 
-type2 = np.loadtxt(base_dir + '/dataset/dataset2/encoders/enc_type2.csv', delimiter=',')
+type2 = pd.read_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type2.csv')
 mp_type2 = {}
-for i in range(type2.shape[0]):
-    mp_type2[type2[i, 0]] = type2[i, 1:].tolist()
+for col in type2.columns.values:
+    mp_type2[col] = type2[col].values
 
 
 # %%
-def process(n, isTrain=True)
+def process(n, isTrain=True):
     for i in range(n):
         cur_user = train_base_df['user'].loc[i]
         if isTrain:
