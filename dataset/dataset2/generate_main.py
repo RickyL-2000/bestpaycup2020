@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 import numpy as np
+
 base_dir = os.getcwd()
 
 # %%
@@ -29,7 +30,6 @@ header = ['user', 'n_op', 'n_trans', 'op_type_0', 'op_type_1', 'op_type_2', 'op_
           'trans_amount_48h_n', 'trans_48h_n', 'trans_platform_48h_n', 'trans_ip_48h_n']
 
 print(len(header))
-
 
 # %%
 feature_train = pd.DataFrame(columns=header)
@@ -100,16 +100,16 @@ def process(n, isTrain=True):
         if isTrain:
             cur_user = train_base_df['user'].loc[i]
             tr_trans_user = train_trans_df[train_trans_df['user'] == cur_user]  # 该用户的trans记录
-            tr_op_user = train_op_df[train_op_df['user'] == cur_user]           # 该用户的op记录
+            tr_op_user = train_op_df[train_op_df['user'] == cur_user]  # 该用户的op记录
         else:
             cur_user = test_base_df['user'].loc[i]
             tr_trans_user = test_trans_df[test_trans_df['user'] == cur_user]  # 该用户的trans记录
-            tr_op_user = test_op_df[test_op_df['user'] == cur_user]           # 该用户的op记录
+            tr_op_user = test_op_df[test_op_df['user'] == cur_user]  # 该用户的op记录
 
-        n_tr_trans_user = len(tr_trans_user)    # 该用户的trans记录条数
-        n_tr_op_user = len(tr_op_user)          # 该用户的op记录条数
+        n_tr_trans_user = len(tr_trans_user)  # 该用户的trans记录条数
+        n_tr_op_user = len(tr_op_user)  # 该用户的op记录条数
 
-        line = [cur_user, n_tr_op_user, n_tr_trans_user]   # 一行，即当前用户的所有二次特征
+        line = [cur_user, n_tr_op_user, n_tr_trans_user]  # 一行，即当前用户的所有二次特征
 
         if n_tr_op_user > 0:
             ### op_type
@@ -143,7 +143,8 @@ def process(n, isTrain=True):
             s = tr_op_user['op_device'].value_counts()
             line.append(np.std(s.values))
 
-            line.append(tr_op_user['op_device'].isnull().sum() / n_tr_op_user)
+            # line.append(tr_op_user['op_device'].isnull().sum() / n_tr_op_user)
+            line.append(sum(tr_op_user['op_device'].apply(lambda x: 1 if x == 'op_device_nan' else 0)) / n_tr_op_user)
 
             line.append(len(s))
 
@@ -169,7 +170,8 @@ def process(n, isTrain=True):
             s = tr_op_user['net_type'].value_counts()
             line.append(np.std(s.values))
 
-            line.append(tr_op_user['net_type'].isnull().sum() / n_tr_op_user)
+            # line.append(tr_op_user['net_type'].isnull().sum() / n_tr_op_user)
+            line.append(sum(tr_op_user['net_type'].apply(lambda x: 1 if x == 'net_type_nan' else 0)) / n_tr_op_user)
 
             ### channel
             mode_op_channel = tr_op_user['channel'].mode()[0]
@@ -233,7 +235,8 @@ def process(n, isTrain=True):
             code = mp_platform[mode_trans_platform]
             line.extend(code)
 
-            line.append(sum(tr_trans_user['platform'].apply(lambda x: 1 if x == mode_trans_platform else 0)) / n_tr_trans_user)
+            line.append(
+                sum(tr_trans_user['platform'].apply(lambda x: 1 if x == mode_trans_platform else 0)) / n_tr_trans_user)
 
             s = tr_trans_user['platform'].value_counts()
             line.append(np.std(s.values))
@@ -245,21 +248,25 @@ def process(n, isTrain=True):
             code = mp_tunnel_in[mode_trans_tunnel_in]
             line.extend(code)
 
-            line.append(sum(tr_trans_user['tunnel_in'].apply(lambda x: 1 if x == mode_trans_tunnel_in else 0)) / n_tr_trans_user)
+            line.append(sum(
+                tr_trans_user['tunnel_in'].apply(lambda x: 1 if x == mode_trans_tunnel_in else 0)) / n_tr_trans_user)
 
             s = tr_trans_user['tunnel_in'].value_counts()
             line.append(np.std(s.values))
 
             line.append(len(s))
 
-            line.append(tr_trans_user['tunnel_in'].isnull().sum() / n_tr_trans_user)
+            # line.append(tr_trans_user['tunnel_in'].isnull().sum() / n_tr_trans_user)
+            line.append(
+                sum(tr_trans_user['tunnel_in'].apply(lambda x: 1 if x == 'tunnel_in_nan' else 0)) / n_tr_trans_user)
 
             ### tunnel_out
             mode_trans_tunnel_out = tr_trans_user['tunnel_out'].mode()[0]
             code = mp_tunnel_out[mode_trans_tunnel_out]
             line.extend(code)
 
-            line.append(sum(tr_trans_user['tunnel_out'].apply(lambda x: 1 if x == mode_trans_tunnel_out else 0)) / n_tr_trans_user)
+            line.append(sum(
+                tr_trans_user['tunnel_out'].apply(lambda x: 1 if x == mode_trans_tunnel_out else 0)) / n_tr_trans_user)
 
             s = tr_trans_user['tunnel_out'].value_counts()
             line.append(np.std(s.values))
@@ -277,7 +284,8 @@ def process(n, isTrain=True):
             code = mp_type1[mode_trans_type1]
             line.extend(code)
 
-            line.append(sum(tr_trans_user['type1'].apply(lambda x: 1 if x == mode_trans_type1 else 0)) / n_tr_trans_user)
+            line.append(
+                sum(tr_trans_user['type1'].apply(lambda x: 1 if x == mode_trans_type1 else 0)) / n_tr_trans_user)
 
             s = tr_trans_user['type1'].value_counts()
             line.append(np.std(s.values))
@@ -299,7 +307,8 @@ def process(n, isTrain=True):
             code = mp_type2[mode_trans_type2]
             line.extend(code)
 
-            line.append(sum(tr_trans_user['type2'].apply(lambda x: 1 if x == mode_trans_type2 else 0)) / n_tr_trans_user)
+            line.append(
+                sum(tr_trans_user['type2'].apply(lambda x: 1 if x == mode_trans_type2 else 0)) / n_tr_trans_user)
 
             s = tr_trans_user['type2'].value_counts()
             line.append(np.std(s.values))
@@ -386,7 +395,7 @@ train_base_df.to_csv(base_dir + '/dataset/dataset2/trainset/train_main.csv', ind
 test_base_df.to_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv', index=False)
 
 # %%
-# #######################试水专用########################### #
+# #######################以下为试水专用########################### #
 
 feature_train = pd.read_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv')
 feature_test = pd.read_csv(base_dir + '/dataset/dataset2/testset/feature_test.csv')
@@ -422,12 +431,89 @@ for i in range(n_train):
     n_tr_op_user = len(tr_op_user)  # 该用户的op记录条数
 
     if n_tr_op_user > 0:
-        feature_train['op_ip_nan_perc'].loc[i] = sum(tr_op_user['ip'].apply(lambda x: 1 if x == 'ip_nan' else 0)) / n_tr_op_user
-        feature_train['op_ip_3_nan_perc'].loc[i] = sum(tr_op_user['ip_3'].apply(lambda x: 1 if x == 'ip_3_nan' else 0)) / n_tr_op_user
+        feature_train['op_device_nan_perc'].loc[i] = sum(
+            tr_op_user['op_device'].apply(lambda x: 1 if x == 'op_device_nan' else 0)) / n_tr_op_user
+        feature_train['op_net_type_nan_perc'].loc[i] = sum(
+            tr_op_user['net_type'].apply(lambda x: 1 if x == 'net_type_nan' else 0)) / n_tr_op_user
     if n_tr_trans_user > 0:
-        feature_train['trans_ip_nan_perc'].loc[i] = sum(tr_trans_user['ip'].apply(lambda x: 1 if x == 'ip_nan' else 0)) / n_tr_trans_user
-        feature_train['trans_ip_3_nan_perc'].loc[i] = sum(tr_trans_user['ip_3'].apply(lambda x: 1 if x == 'ip_3_nan' else 0)) / n_tr_trans_user
+        feature_train['trans_tunnel_in_nan_perc'].loc[i] = sum(
+            tr_trans_user['tunnel_in'].apply(lambda x: 1 if x == 'tunnel_in_nan' else 0)) / n_tr_trans_user
 
-# %%
+for i in range(n_test):
+    if i % 1000 == 0:
+        print(i)
+
+    cur_user = test_base_df['user'].loc[i]
+    tr_trans_user = test_trans_df[test_trans_df['user'] == cur_user]  # 该用户的trans记录
+    tr_op_user = test_op_df[test_op_df['user'] == cur_user]  # 该用户的op记录
+    n_tr_trans_user = len(tr_trans_user)  # 该用户的trans记录条数
+    n_tr_op_user = len(tr_op_user)  # 该用户的op记录条数
+
+    if n_tr_op_user > 0:
+        feature_test['op_device_nan_perc'].loc[i] = sum(
+            tr_op_user['op_device'].apply(lambda x: 1 if x == 'op_device_nan' else 0)) / n_tr_op_user
+        feature_test['op_net_type_nan_perc'].loc[i] = sum(
+            tr_op_user['net_type'].apply(lambda x: 1 if x == 'net_type_nan' else 0)) / n_tr_op_user
+    if n_tr_trans_user > 0:
+        feature_test['trans_tunnel_in_nan_perc'].loc[i] = sum(
+            tr_trans_user['tunnel_in'].apply(lambda x: 1 if x == 'tunnel_in_nan' else 0)) / n_tr_trans_user
+
 feature_train.to_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv', index=False)
 feature_test.to_csv(base_dir + '/dataset/dataset2/testset/feature_test.csv', index=False)
+
+# %%
+feature_train = pd.read_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv')
+
+for i in range(len(feature_train)):
+    if i % 1000 == 0:
+        print(i)
+    if feature_train['n_op'].loc[i] == 0:
+        feature_train.loc[i, ('op_type_0', 'op_type_1', 'op_type_2', 'op_type_3', 'op_type_4', 'op_type_5',
+                              'op_type_6', 'op_type_7', 'op_type_8', 'op_type_9', 'op_type_perc', 'op_type_std',
+                              'op_type_n', 'op_mode_0',
+                              'op_mode_1', 'op_mode_2', 'op_mode_3', 'op_mode_4', 'op_mode_5', 'op_mode_6', 'op_mode_7',
+                              'op_mode_8',
+                              'op_mode_9', 'op_mode_perc', 'op_mode_std', 'op_mode_n', 'op_device_perc',
+                              'op_device_std',
+                              'op_device_nan_perc', 'op_device_n', 'op_ip_perc', 'op_ip_std', 'op_ip_nan_perc',
+                              'op_ip_n', 'op_net_type_0',
+                              'op_net_type_1', 'op_net_type_2', 'op_net_type_3', 'op_net_type_perc', 'op_net_type_std',
+                              'op_net_type_nan_perc', 'op_channel_0', 'op_channel_1', 'op_channel_2', 'op_channel_3',
+                              'op_channel_4',
+                              'op_channel_perc', 'op_channel_std', 'op_channel_n', 'op_ip_3_perc', 'op_ip_3_std',
+                              'op_ip_3_nan_perc',
+                              'op_ip_3_n', 'op_ip_3_ch_freq', 'op_ip_48h_n', 'op_device_48h_n',
+                              'op_48h_n')] = -1
+    if feature_train['n_trans'].loc[i] == 0:
+        feature_train.loc[i, ('trans_platform_0', 'trans_platform_1', 'trans_platform_2', 'trans_platform_3',
+                              'trans_platform_4', 'trans_platform_5', 'trans_platform_perc', 'trans_platform_std',
+                              'trans_platform_n',
+                              'trans_tunnel_in_0', 'trans_tunnel_in_1', 'trans_tunnel_in_2', 'trans_tunnel_in_3',
+                              'trans_tunnel_in_4',
+                              'trans_tunnel_in_5', 'trans_tunnel_in_perc', 'trans_tunnel_in_std', 'trans_tunnel_in_n',
+                              'trans_tunnel_in_nan_perc', 'trans_tunnel_out_0', 'trans_tunnel_out_1',
+                              'trans_tunnel_out_2',
+                              'trans_tunnel_out_3', 'trans_tunnel_out_perc', 'trans_tunnel_out_std', 'trans_tunnel_n',
+                              'trans_amount_max',
+                              'trans_amount_avg', 'trans_amount_std', 'trans_type1_0', 'trans_type1_1', 'trans_type1_2',
+                              'trans_type1_3',
+                              'trans_type1_4', 'trans_type1_perc', 'trans_type1_std', 'trans_ip_perc', 'trans_ip_std',
+                              'trans_ip_nan_perc',
+                              'trans_ip_n', 'trans_type2_0', 'trans_type2_1', 'trans_type2_2', 'trans_type2_3',
+                              'trans_type2_4',
+                              'trans_type2_perc', 'trans_type2_std', 'trans_ip_3_perc', 'trans_ip_3_std',
+                              'trans_ip_3_nan_perc',
+                              'trans_ip_3_n', 'trans_ip_3_ch_freq',
+                              'trans_amount_48h_n', 'trans_48h_n', 'trans_platform_48h_n', 'trans_ip_48h_n')] = -1
+
+feature_train.to_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv', index=False)
+
+# %%
+feature_train = pd.read_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv')
+train_base_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_base.csv')
+
+feature_train = feature_train.drop(labels='user', axis=1)
+
+train_base_df = train_base_df.join(feature_train)
+
+train_base_df.to_csv(base_dir + '/dataset/dataset2/trainset/train_main.csv', index=False)
