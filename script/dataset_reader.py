@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os,sys
 
-#%% vscode user
 #%% initial path
 cur_path = sys.path[0].split(os.path.sep)
 workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
@@ -23,13 +22,6 @@ SAMPLE_OP_PATH      = './dataset/raw_dataset/sample_trainset/sample_op.csv'
 SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 # %% 
-base = pd.read_csv(TRAIN_BASE_PATH)
-index = base.columns.tolist()
-print("base表条目总数：",len(base[:]['user'].values)) # 总量
-print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
-for e in index:
-    print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
-
 # index = ['user', 'sex', 'age', 'provider', 'level', 'verified', 'using_time',
 #        'regist_type', 'card_a_cnt', 'card_b_cnt', 'card_c_cnt', 'agreement1',
 #        'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
@@ -41,37 +33,36 @@ for e in index:
 #        'product2_amount', 'product3_amount', 'product4_amount',
 #        'product5_amount', 'product6_amount', 'product7_cnt',
 #        'product7_fail_cnt']
+base = pd.read_csv(TRAIN_BASE_PATH)
+index = base.columns.tolist()
+print("base表条目总数：",len(base[:]['user'].values)) # 总量
+print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
+for e in index:
+    print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
 
 # %%
-csv1 = pd.read_csv(TRAIN_OP_PATH)
+for e in index:
+    if e in ['using_time','card_a_cnt', 'card_b_cnt', 'card_c_cnt',
+       'op1_cnt', 'op2_cnt', 'card_d_cnt', 'agreement_total', 'service1_cnt',
+       'service1_amt', 'service2_cnt', 'acc_count', 'login_cnt_period1', 'login_cnt_period2',
+       'ip_cnt', 'login_cnt_avg', 'login_days_cnt', 'product7_cnt',
+       'product7_fail_cnt']:
+        base[e].plot(kind='box',title=e)
+        # plt.legend(loc="upper left")
+        plt.show()
 
 
 # %%
-print(len(csv1[:]['user'].values)) # 总量
-print(csv1['user'].isnull().sum()) # 缺失值的数量
-print(csv1['op_type'].isnull().sum())     
-print(csv1['op_mode'].isnull().sum())  
-print(csv1['op_device'].isnull().sum())
-print(csv1['ip'].isnull().sum())
-print(csv1['net_type'].isnull().sum())
-print(csv1['channel'].isnull().sum())
-print(csv1['ip_3'].isnull().sum())
-print(csv1['tm_diff'].isnull().sum())
-# %% 
-# 统计种类及频率信息
-print(csv1['user'].value_counts())
-print(csv1['op_type'].value_counts())
-print(csv1['op_mode'].value_counts())
-print(csv1['op_device'].value_counts())
-print(csv1['ip'].value_counts())
-print(csv1['net_type'].value_counts())
-print(csv1['channel'].value_counts())
-print(csv1['ip_3'].value_counts())
-print(csv1['tm_diff'].value_counts())
+op = pd.read_csv(TRAIN_OP_PATH)
+index = op.columns.tolist()
+print("op表条目总数：",len(op[:]['user'].values)) # 总量
+print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
+for e in index:
+    print(f"{e:<20}{op[e].isnull().sum():<8}{len(op[e].value_counts()):<10}")  # 值的种类
+
 # %%
 trans = pd.read_csv(TRAIN_TRANS_PATH)
 sample_trans = pd.read_csv(SAMPLE_TRANS_PATH)
-
 print(sample_trans.head(10))
 
 
