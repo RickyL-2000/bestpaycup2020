@@ -1,5 +1,4 @@
 #%% 切换运行路径
-from models.logistic_regression.lr_2_2 import pred
 import os,sys
 cur_path = sys.path[0].split(os.path.sep)
 workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
@@ -43,8 +42,8 @@ NUM_REMAIN_TEST = int(0.2 * num_data)
 #%% 建立数据集
 class Base(Dataset):
     def __init__(self,base_csv_file,label_file,train=True):
-        self.base = pd.read_csv(base_csv_file).sort_index(by='user')
-        self.label = pd.read_csv(label_file).sort_index(by='user')
+        self.base = pd.read_csv(base_csv_file).sort_values(by='user')
+        self.label = pd.read_csv(label_file).sort_values(by='user')
         if train:            
             self.base = self.base[:-NUM_REMAIN_TEST]
             self.label = self.label[:-NUM_REMAIN_TEST]
@@ -88,7 +87,9 @@ class Net(nn.Module):
         self.all_fc3 = nn.Linear(128,32)   
 
         self.bn4 = nn.BatchNorm1d(32)
-        self.all_fc4 = nn.Linear(32,2)   # 输出两个量，高信用得分和低信用得分
+        self.all_fc4 = nn.Linear(32,2)   # 输出两个量，高信用得分和低信用得分(意义不明)
+
+        self.all_fc5 = nn.Linear(256,2)   # 输出两个量，高信用得分和低信用得分(意义不明)
 
     def forward(self,x):
         # x[user,base_info,province_onehot,city_pca]
@@ -97,33 +98,35 @@ class Net(nn.Module):
         _city = x[:,43+31:]       # 50 columns
         
         # 不能强制填零来提升速度，模型会混乱
-        # _zero = torch.zeros_like(_base,requires_grad=False)[:,:,:64-_base.shape[2]]
-        # _base = torch.cat((_base,_zero),dim=2)
-        # _zero = torch.zeros_like(_province,requires_grad=False)[:,:,:256-_province.shape[2]]
-        # _province = torch.cat((_province,_zero),dim=2)
-        # _zero = torch.zeros_like(_city,requires_grad=False)[:,:,:64-_city.shape[2]]
-        # _city = torch.cat((_city,_zero),dim=2)
+            # _zero = torch.zeros_like(_base,requires_grad=False)[:,:,:64-_base.shape[2]]
+            # _base = torch.cat((_base,_zero),dim=2)
+            # _zero = torch.zeros_like(_province,requires_grad=False)[:,:,:256-_province.shape[2]]
+            # _province = torch.cat((_province,_zero),dim=2)
+            # _zero = torch.zeros_like(_city,requires_grad=False)[:,:,:64-_city.shape[2]]
+            # _city = torch.cat((_city,_zero),dim=2)
 
         ####_base = self.fc1(_base)
-        _province = F.sigmoid(self.province_fc1(_province))
-        _city =     F.sigmoid(self.city_fc1(_city))
+        _province =torch.sigmoid(self.province_fc1(_province))
+        _city =    torch.sigmoid(self.city_fc1(_city))
 
         x = torch.cat((_base,_city,_province),dim=1)
 
         x = self.bn1(x)
         x = self.all_fc1(x)
-        x = F.sigmoid(x)
+        x =torch.sigmoid(x)
 
         x = self.bn2(x)
-        x = self.all_fc2(x)
-        x = F.sigmoid(x)
+        # x = self.all_fc2(x)
+        # x =torch.sigmoid(x)
 
-        x = self.bn3(x)
-        x = self.all_fc3(x)
-        x = F.sigmoid(x)
+        # x = self.bn3(x)
+        # x = self.all_fc3(x)
+        # x =torch.sigmoid(x)
 
-        x = self.bn4(x)
-        x = self.all_fc4(x)
+        # x = self.bn4(x)
+        # x = self.all_fc4(x)
+
+        x = self.all_fc5(x)
 
         return x
 
@@ -150,7 +153,7 @@ BETAS           = (0.9, 0.999)
 EPS             = 1e-08
 WEIGHT_DECAY    = 0
 # balance_rate
-BALANCE_RATE    = 1/0.2465363*0.5
+BALANCE_RATE    = 2
 
 #%% 数据加载类，损失函数和优化器
 train_base_dl = DataLoader(train_base,batch_size=BATCH_SIZE,shuffle=True,drop_last=True)
@@ -158,20 +161,20 @@ train_base_dl = DataLoader(train_base,batch_size=BATCH_SIZE,shuffle=True,drop_la
 # criterion = nn.MSELoss()     # 输出一个值时，用MSE平方收敛更快
 criterion = nn.CrossEntropyLoss()   # 输出两个得分时，用交叉熵函数
 
-# optimizer = optim.SGD(net.parameters(),lr=LR,momentum=MOMENTUM)
-optimizer = optim.Adam(net.parameters(),lr=LR, betas=BETAS, eps=EPS, weight_decay=WEIGHT_DECAY)
+optimizer = optim.SGD(net.parameters(),lr=LR,momentum=MOMENTUM)
+# optimizer = optim.Adam(net.parameters(),lr=LR, betas=BETAS, eps=EPS, weight_decay=WEIGHT_DECAY)
 
 #%% 模型初始化，准备记录变量
 net.train() # fix BatchNorm and Dropout layer
 for params in net.parameters():
     init.normal_(params, mean=0, std=0.1)
+net.zero_grad()
 loss_list=[[],[]]
 roc_auc_list=[]
-net.zero_grad()
+
 #%% 训练模型
 for epoch in range(NUM_EPOCH):
     running_loss = [0,0]
-
     for i,data in enumerate(train_base_dl,0):
         # 处理输入数据的数据类型
         inputs,labels = data
@@ -184,9 +187,10 @@ for epoch in range(NUM_EPOCH):
         # 损失函数
         loss_classify = criterion(outputs,labels)
         pred = F.softmax(outputs, dim=1)[:,1].round()
-        loss_balance = (0.2465363-pred.mean())*BALANCE_RATE
+        loss_balance = (0.2465363-pred.mean()).abs()*BALANCE_RATE/0.2465363
             # 这一项为了保证输出结果尽可能均值0.2465363（label的均值），以此提高roc_auc
         loss = loss_classify+loss_balance
+        loss = loss_classify
 
         # 反向传播
         optimizer.zero_grad()
@@ -206,10 +210,10 @@ for epoch in range(NUM_EPOCH):
         
         # 打印状态信息
         if i % PRINT_PER_BATCH == PRINT_PER_BATCH-1:    # 每 一定数量 批次打印一次
-            print(  f'[{epoch + 1}, {i + 1:5d}]'
+            print(  f'[{epoch + 1}, {i + 1:5d}] '
                     f'loss_classify: {running_loss[0] / PRINT_PER_BATCH:.4f} '
                     f'loss_balance: {running_loss[1] / PRINT_PER_BATCH:.4f} '
-                    f'roc_auc:{roc_auc_list[-1]:.4f}')
+                    f'roc_auc: {roc_auc_list[-1]:.4f}')
             running_loss = [0 for x in range(len(running_loss))]
 
 
@@ -219,7 +223,7 @@ plt.plot(loss_list[1],'-y')
 plt.title("loss")
 plt.show()
 plt.plot(roc_auc_list,'-b')
-plt.title("accuracy")
+plt.title("roc_auc")
 plt.show()
 
 
