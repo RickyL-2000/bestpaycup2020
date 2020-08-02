@@ -2,6 +2,7 @@
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import GridSearchCV
 import numpy as np
 import os
 import pandas as pd
@@ -46,22 +47,87 @@ train_data = lgb.Dataset(X_train, label=y_train)
 val_data = lgb.Dataset(X_val, label=y_val)
 params = {
     'learning_rate': 0.1,
-    'lambda_l1': 0.1,
-    'lambda_l2': 0.2,
-    'max_depth': 4,
-    'objective': 'multiclass',
-    'num_class': 2
+    'max_depth': 10,
+    'num_leaves': 1000,
+    'objective': 'binary',
+    'subsample': 0.8,
+    'colsample_bytree': 0.8,
+    'metric': 'auc',
+    'n_estimators': 63
+    # 'is_training_metric': True,
 }
 
 # %%
 # train
-clf = lgb.train(params, train_data, valid_sets=[val_data])
+# clf = lgb.train(params, train_data, valid_sets=[val_data])
+
+# %%
+# 调参，找出最佳 n_estimators
+clf = lgb.cv(params, train_data, num_boost_round=1000, nfold=5, stratified=False, shuffle=True, metrics='auc',
+             early_stopping_rounds=50, seed=0)
+
+print('best n_estimators:', len(clf['auc-mean']))
+print('best cv score:', pd.Series(clf['auc-mean']).max())
+
+# %%
+# 调参，确定max_depth和num_leaves
+params_test1 = {
+    'max_depth': range(3, 8, 1),
+    'num_leaves': range(5, 100, 5)
+}
+
+gsearch1 = GridSearchCV(estimator=lgb.LGBMClassifier(
+    boosting_type='gbdt',
+    objective='binary',
+    metrics='auc',
+    learning_rate=0.1,
+    n_estimators=63,
+    max_depth=10,
+    bagging_fraction=0.8,
+    feature_fraction=0.8
+),
+    param_grid=params_test1,
+    scoring='roc_auc',
+    cv=5,
+    n_jobs=-1)
+
+gsearch1.fit(X_train, y_train)
+
+print(gsearch1.best_params_)
+print(gsearch1.best_score_)
+# output:
+# {'max_depth': 6, 'num_leaves': 30}
+# 0.7111428352044761
+
+# %%
+# 确定 min_data_in_leaf 和 max_bin
+params_test2 = {
+    'max_bin': range(5, 256, 10),
+    'min_data_in_leaf': range(1, 102, 10)
+}
+
+gsearch2 = GridSearchCV(
+    estimator=lgb.LGBMClassifier(boosting_type='gbdt',
+                                 objective='binary',
+                                 metrics='auc',
+                                 learning_rate=0.1,
+                                 n_estimators=63,
+                                 max_depth=6,
+                                 num_leaves=30,
+                                 bagging_fraction=0.8,
+                                 feature_fraction=0.8),
+    param_grid=params_test2, scoring='roc_auc', cv=5, n_jobs=-1
+)
+
+gsearch2.fit(X_train, y_train)
+
+print(gsearch1.best_params_)
+print(gsearch1.best_score_)
 
 
 # %%
 def get_score(pred, lab):
     return roc_auc_score(lab, pred[:, 1])
-
 
 # %%
 # prediction validation
@@ -70,4 +136,3 @@ y_pred = np.array([list(x).index(max(x)) for x in y_pred])
 y_val = np.array(y_val)
 score = roc_auc_score(y_val, y_pred)
 print(score)
-
