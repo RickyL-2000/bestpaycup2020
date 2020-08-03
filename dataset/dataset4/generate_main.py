@@ -107,6 +107,52 @@ def process(n, isTrain=True):
                     pre_op_channel = op_user['channel'].loc[j]
                     cnt_op_channel += 1
 
+            if isTrain:
+                feature_train_op['op_ip_ch_freq'].loc[i] = cnt_op_ip
+                feature_train_op['op_device_ch_freq'].loc[i] = cnt_op_device
+                feature_train_op['op_net_type_ch_freq'].loc[i] = cnt_op_net_type
+                feature_train_op['op_channel_ch_freq'].loc[i] = cnt_op_channel
+            else:
+                feature_test_op['op_ip_ch_freq'].loc[i] = cnt_op_ip
+                feature_test_op['op_device_ch_freq'].loc[i] = cnt_op_device
+                feature_test_op['op_net_type_ch_freq'].loc[i] = cnt_op_net_type
+                feature_test_op['op_channel_ch_freq'].loc[i] = cnt_op_channel
+
+            # 统计各种48h滑窗
+            gap = 48 * 3600
+            max_op_ip_48h_n = 0
+            max_op_ip_3_48h_n = 0
+            max_op_device_48h_n = 0
+            max_op_48h_n = 0
+            time_lst = op_user['tm_diff'].tolist()
+            start_idx = 0
+            start_time = time_lst[0]
+            gap_df = op_user[(start_time <= op_user['tm_diff']) & (op_user['tm_diff'] <= start_time + gap)]
+            end_idx = len(gap_df)
+            pre_end_idx = end_idx
+            while end_idx < n_op_user:
+                while end_idx < n_op_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
+                    end_idx += 1
+                if end_idx != pre_end_idx:
+                    gap_df = op_user[(time_lst[start_idx] <= op_user['tm_diff']) &
+                                     (op_user['tm_diff'] <= time_lst[end_idx])]
+                    max_op_ip_48h_n = max(max_op_ip_48h_n, gap_df['ip'].nunique())
+                    max_op_ip_3_48h_n = max(max_op_ip_3_48h_n, gap_df['ip_3'].nunique())
+                    max_op_device_48h_n = max(max_op_device_48h_n, gap_df['op_device'].nunique())
+                    max_op_48h_n = max(max_op_48h_n, len(gap_df))
+                start_idx += 1
+
+            if isTrain:
+                feature_train_op['op_ip_48h_n'].loc[i] = max_op_ip_48h_n
+                feature_train_op['op_ip_3_48h_n'].loc[i] = max_op_ip_3_48h_n
+                feature_train_op['op_device_48h_n'].loc[i] = max_op_device_48h_n
+                feature_train_op['op_48h_n'].loc[i] = max_op_48h_n
+            else:
+                feature_test_op['op_ip_48h_n'].loc[i] = max_op_ip_48h_n
+                feature_test_op['op_ip_3_48h_n'].loc[i] = max_op_ip_3_48h_n
+                feature_test_op['op_device_48h_n'].loc[i] = max_op_device_48h_n
+                feature_test_op['op_48h_n'].loc[i] = max_op_48h_n
+
         if n_trans_user > 0:
             # 对 tm_diff 排序
             trans_user.sort_values('tm_diff', inplace=True)
@@ -123,6 +169,52 @@ def process(n, isTrain=True):
                 if pre_trans_platform != trans_user['platform'].loc[j]:
                     pre_trans_platform = trans_user['platform'].loc[j]
                     cnt_trans_platform += 1
+
+            if isTrain:
+                feature_train_trans['trans_ip_ch_freq'].loc[i] = cnt_trans_ip
+                feature_train_trans['trans_platform_ch_freq'].loc[i] = cnt_trans_platform
+            else:
+                feature_test_trans['trans_ip_ch_freq'].loc[i] = cnt_trans_ip
+                feature_test_trans['trans_platform_ch_freq'].loc[i] = cnt_trans_platform
+
+            # 统计各种48h滑窗
+            gap = 48 * 3600
+            max_trans_amount_48h_n = 0
+            max_trans_48h_n = 0
+            max_trans_platform_48h_n = 0
+            max_trans_ip_48h_n = 0
+            max_trans_ip_3_48h_n = 0
+            time_lst = trans_user['tm_diff'].tolist()
+            start_idx = 0
+            start_time = time_lst[0]
+            gap_df = trans_user[(start_time <= trans_user['tm_diff']) & (trans_user['tm_diff'] <= start_time + gap)]
+            end_idx = len(gap_df)
+            pre_end_idx = end_idx
+            while end_idx < n_trans_user:
+                while end_idx < n_trans_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
+                    end_idx += 1
+                if end_idx != pre_end_idx:
+                    gap_df = trans_user[(time_lst[start_idx] <= trans_user['tm_diff']) &
+                                        (trans_user['tm_diff'] <= time_lst[end_idx])]
+                    max_trans_amount_48h_n = max(max_trans_amount_48h_n, gap_df['amount'].values.sum())
+                    max_trans_48h_n = max(max_trans_48h_n, len(gap_df))
+                    max_trans_platform_48h_n = max(max_trans_platform_48h_n, gap_df['platform'].nunique())
+                    max_trans_ip_48h_n = max(max_trans_ip_48h_n, gap_df['ip'].nunique())
+                    max_trans_ip_3_48h_n = max(max_trans_ip_3_48h_n, gap_df['ip_3'].nunique())
+                start_idx += 1
+
+            if isTrain:
+                feature_train_trans['trans_amount_48h_n'] = max_trans_amount_48h_n
+                feature_train_trans['trans_48h_n'] = max_trans_48h_n
+                feature_train_trans['trans_platform_48h_n'] = max_trans_platform_48h_n
+                feature_train_trans['trans_ip_48h_n'] = max_trans_ip_48h_n
+                feature_train_trans['trans_ip_3_48h_n'] = max_trans_ip_3_48h_n
+            else:
+                feature_test_trans['trans_amount_48h_n'] = max_trans_amount_48h_n
+                feature_test_trans['trans_48h_n'] = max_trans_48h_n
+                feature_test_trans['trans_platform_48h_n'] = max_trans_platform_48h_n
+                feature_test_trans['trans_ip_48h_n'] = max_trans_ip_48h_n
+                feature_test_trans['trans_ip_3_48h_n'] = max_trans_ip_3_48h_n
 
 
 # %%
