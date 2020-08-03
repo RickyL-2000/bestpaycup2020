@@ -43,19 +43,19 @@ np.random.shuffle(data_y)
 X_train, X_val, y_train, y_val = train_test_split(data_x, data_y, test_size=0.1)
 
 # %%
-# train_data = lgb.Dataset(X_train, label=y_train)
-# val_data = lgb.Dataset(X_val, label=y_val)
-# params = {
-#     'learning_rate': 0.1,
-#     'max_depth': 10,
-#     'num_leaves': 1000,
-#     'objective': 'binary',
-#     'subsample': 0.8,
-#     'colsample_bytree': 0.8,
-#     'metric': 'auc',
-#     'n_estimators': 63
-#     # 'is_training_metric': True,
-# }
+train_data = lgb.Dataset(X_train, label=y_train)
+val_data = lgb.Dataset(X_val, label=y_val)
+params = {
+    'learning_rate': 0.1,
+    'max_depth': 10,
+    'num_leaves': 1000,
+    'objective': 'binary',
+    'subsample': 0.8,
+    'colsample_bytree': 0.8,
+    'metric': 'auc',
+    'n_estimators': 63
+    # 'is_training_metric': True,
+}
 
 # %%
 # train
@@ -220,12 +220,12 @@ print(gsearch5.best_score_)
 # 0.7117714487623986
 
 # %%
-# 训练
+# 训练 1
 model = lgb.LGBMClassifier(boosting_type='gbdt',
                            objective='binary',
                            metrics='auc',
                            learning_rate=0.01,
-                           n_estimators=1000,
+                           n_estimators=10000,
                            max_depth=6,
                            num_leaves=30,
                            max_bin=15,
@@ -243,10 +243,95 @@ y_hat = model.predict(X_val)
 
 print('auc: ', roc_auc_score(y_val, y_hat))
 
+# %%
+# 查看权重
+headers = x_df.columns.tolist()
+headers.pop(0)
+pd.set_option('display.max_rows', None)
+print(pd.DataFrame({
+    'column': headers,
+    'importance': model.feature_importances_,
+}).sort_values(by='importance'))
+
+importance = pd.DataFrame({
+    'column': headers,
+    'importance': model.feature_importances_,
+}).sort_values(by='importance')
+
+importance.to_csv(base_dir + '/models/treemodel/lgb_2_1_weight1.csv', index=False)
 
 # %%
-def get_score(pred, lab):
-    return roc_auc_score(lab, pred[:, 1])
+# 训练 2
+train_data = lgb.Dataset(X_train, label=y_train)
+val_data = lgb.Dataset(X_val, label=y_val, reference=train_data)
+
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metrics': 'auc',
+    'learning_rate': 0.01,
+    'n_estimators': 10000,
+    'max_depth': 6,
+    'num_leaves': 30,
+    'max_bin': 15,
+    'min_data_in_leaf': 71,
+    'bagging_fraction': 0.6,
+    'bagging_freq': 0,
+    'feature_fraction': 0.8,
+    'lambda_l1': 1.0,
+    'lambda_l2': 0.7,
+    'min_split_gain': 0.1
+}
+
+model2 = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=500)
+
+y_hat = model2.predict(X_val)
+
+print('auc: ', roc_auc_score(y_val, y_hat))
+
+# %%
+# 查看权重
+headers = x_df.columns.tolist()
+headers.pop(0)
+pd.set_option('display.max_rows', None)
+print(pd.DataFrame({
+    'column': headers,
+    'importance': model2.feature_importance().tolist()
+}).sort_values(by='importance'))
+
+importance = pd.DataFrame({
+    'column': headers,
+    'importance': model2.feature_importance().tolist()
+}).sort_values(by='importance')
+
+importance.to_csv(base_dir + '/models/treemodel/lgb_2_1_weight2.csv', index=False)
+
+# %%
+# model2 prediction
+# 测试集
+test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv'))
+y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example.csv')
+
+# lr_1_1 的输出
+out_1_1 = pd.read_csv(base_dir + '/models/logistic_regression/output_1_1_1.csv')
+
+test_x = test_x[test_x[:, 0].argsort()]
+test_x = test_x[:, 1:].astype(float)
+
+# %%
+pred = model2.predict(test_x, num_iteration=model2.best_iteration)
+y_df.loc[:, 'prob'] = pred
+
+# %%
+# 将无op或无trans记录的预测值换成out_1_1的
+test_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv')
+for i in range(len(test_df)):
+    if test_df['n_op'].loc[i] == 0 or test_df['n_trans'].loc[i] == 0:
+        y_df['prob'].loc[i] = out_1_1['prob'].loc[i]
+
+# %%
+
+y_df.to_csv(base_dir + '/models/treemodel/output_2_1_2.csv', index=False)
 
 
 # %%
