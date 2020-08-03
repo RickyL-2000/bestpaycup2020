@@ -221,25 +221,28 @@ print(gsearch5.best_score_)
 
 # %%
 # 训练 1
-model = lgb.LGBMClassifier(boosting_type='gbdt',
-                           objective='binary',
-                           metrics='auc',
-                           learning_rate=0.01,
-                           n_estimators=10000,
-                           max_depth=6,
-                           num_leaves=30,
-                           max_bin=15,
-                           min_data_in_leaf=71,
-                           bagging_fraction=0.6,
-                           bagging_freq=0,
-                           feature_fraction=0.8,
-                           lambda_l1=1.0,
-                           lambda_l2=0.7,
-                           min_split_gain=0.1)
+"""
+这个训练的效果不好，只有0.53的分数
+"""
+model1 = lgb.LGBMClassifier(boosting_type='gbdt',
+                            objective='binary',
+                            metrics='auc',
+                            learning_rate=0.01,
+                            n_estimators=10000,
+                            max_depth=6,
+                            num_leaves=30,
+                            max_bin=15,
+                            min_data_in_leaf=71,
+                            bagging_fraction=0.6,
+                            bagging_freq=0,
+                            feature_fraction=0.8,
+                            lambda_l1=1.0,
+                            lambda_l2=0.7,
+                            min_split_gain=0.1)
 
-model.fit(X_train, y_train)
+model1.fit(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=500)
 
-y_hat = model.predict(X_val)
+y_hat = model1.predict(X_val)
 
 print('auc: ', roc_auc_score(y_val, y_hat))
 
@@ -262,6 +265,9 @@ importance.to_csv(base_dir + '/models/treemodel/lgb_2_1_weight1.csv', index=Fals
 
 # %%
 # 训练 2
+"""
+这个训练效果很好，本地0.72，上传后0.67（添加output1_1_1后）
+"""
 train_data = lgb.Dataset(X_train, label=y_train)
 val_data = lgb.Dataset(X_val, label=y_val, reference=train_data)
 
@@ -332,7 +338,6 @@ for i in range(len(test_df)):
 # %%
 
 y_df.to_csv(base_dir + '/models/treemodel/output_2_1_2.csv', index=False)
-
 
 # %%
 # prediction validation
