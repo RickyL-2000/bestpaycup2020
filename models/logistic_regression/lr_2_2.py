@@ -44,7 +44,7 @@ np.random.shuffle(data_y)
 class LR(nn.Module):
     def __init__(self):
         super(LR, self).__init__()
-        self.hidden = nn.Linear(246, 256)
+        self.hidden = nn.Linear(238, 256)
         self.output = nn.Linear(256, 2)
 
     def forward(self, x):
