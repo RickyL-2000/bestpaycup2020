@@ -7,16 +7,11 @@
 dataset/raw_dataset/*
 !dataset/raw_dataset/sample_trainset/
 
-# dataset1
-dataset/dataset1/*
-!dataset/dataset1/sample_trainset/
-!dataset/dataset1/*.py
-!dataset/dataset1/*.md
+# dataset[0-9]+
+dataset/dataset[0-9]/*
+!dataset/dataset[0-9]/sample_trainset/
+!dataset/dataset[0-9]/*.py
+!dataset/dataset[0-9]/*.md
 
 tools/
 
-# dataset2
-dataset/dataset2/*
-!dataset/dataset2/sample_trainset/
-!dataset/dataset2/*.py
-!dataset/dataset2/*.md
