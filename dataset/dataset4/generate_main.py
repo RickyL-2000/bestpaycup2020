@@ -2,6 +2,8 @@
 import os
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.decomposition import PCA
 
 base_dir = os.getcwd()
 
@@ -36,10 +38,14 @@ headers_trans = ['n_trans', 'trans_platform_perc', 'trans_platform_std', 'trans_
 
 # %%
 # 新的特征矩阵
+train_base_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_base.csv')
+test_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_base.csv')
 feature_train_op = pd.DataFrame(columns=headers_op)
 feature_test_op = pd.DataFrame(columns=headers_op)
 feature_train_trans = pd.DataFrame(columns=headers_trans)
 feature_test_trans = pd.DataFrame(columns=headers_trans)
+n_train = len(train_base_df)
+n_test = len(test_base_df)
 
 # 旧的特征矩阵
 old_feature_train = pd.read_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv')
@@ -65,7 +71,7 @@ test_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.c
 # %%
 def process(n, isTrain=True):
     for i in range(n):
-        if i % 1000 == 0:
+        if i % 100 == 0:
             print(i)
 
         if isTrain:
@@ -89,22 +95,26 @@ def process(n, isTrain=True):
             cnt_op_device = 0
             cnt_op_net_type = 0
             cnt_op_channel = 0
-            pre_op_ip = op_user['ip'].loc[0]
-            pre_op_device = op_user['op_device'].loc[0]
-            pre_op_net_type = op_user['net_type'].loc[0]
-            pre_op_channel = op_user['channel'].loc[0]
+            lst_op_ip = op_user['ip'].tolist()
+            lst_op_device = op_user['op_device'].tolist()
+            lst_op_net_type = op_user['net_type'].tolist()
+            lst_op_channel = op_user['channel'].tolist()
+            pre_op_ip = lst_op_ip[0]
+            pre_op_device = lst_op_device[0]
+            pre_op_net_type = lst_op_net_type[0]
+            pre_op_channel = lst_op_channel[0]
             for j in range(1, n_op_user):
-                if pre_op_ip != op_user['ip'].loc[j]:
-                    pre_op_ip = op_user['ip'].loc[j]
+                if pre_op_ip != lst_op_ip[j]:
+                    pre_op_ip = lst_op_ip[j]
                     cnt_op_ip += 1
-                if pre_op_device != op_user['op_device'].loc[j]:
-                    pre_op_device = op_user['op_device'].loc[j]
+                if pre_op_device != lst_op_device[j]:
+                    pre_op_device = lst_op_device[j]
                     cnt_op_device += 1
-                if pre_op_net_type != op_user['net_type'].loc[j]:
-                    pre_op_net_type = op_user['net_type'].loc[j]
+                if pre_op_net_type != lst_op_net_type[j]:
+                    pre_op_net_type = lst_op_net_type[j]
                     cnt_op_net_type += 1
-                if pre_op_channel != op_user['channel'].loc[j]:
-                    pre_op_channel = op_user['channel'].loc[j]
+                if pre_op_channel != lst_op_channel[j]:
+                    pre_op_channel = lst_op_channel[j]
                     cnt_op_channel += 1
 
             if isTrain:
@@ -133,7 +143,7 @@ def process(n, isTrain=True):
             while end_idx < n_op_user:
                 while end_idx < n_op_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
                     end_idx += 1
-                if end_idx != pre_end_idx:
+                if end_idx != pre_end_idx and start_idx < n_op_user and end_idx < n_op_user:
                     gap_df = op_user[(time_lst[start_idx] <= op_user['tm_diff']) &
                                      (op_user['tm_diff'] <= time_lst[end_idx])]
                     max_op_ip_48h_n = max(max_op_ip_48h_n, gap_df['ip'].nunique())
@@ -160,14 +170,16 @@ def process(n, isTrain=True):
             # 统计各种频率
             cnt_trans_ip = 0
             cnt_trans_platform = 0
-            pre_trans_ip = trans_user['ip'].loc[0]
-            pre_trans_platform = trans_user['platform'].loc[0]
+            lst_trans_ip = trans_user['ip'].tolist()
+            lst_trans_platform = trans_user['platform'].tolist()
+            pre_trans_ip = lst_trans_ip[0]
+            pre_trans_platform = lst_trans_platform[0]
             for j in range(1, n_trans_user):
-                if pre_trans_ip != trans_user['ip'].loc[j]:
-                    pre_trans_ip = trans_user['ip'].loc[j]
+                if pre_trans_ip != lst_trans_ip[j]:
+                    pre_trans_ip = lst_trans_ip[j]
                     cnt_trans_ip += 1
-                if pre_trans_platform != trans_user['platform'].loc[j]:
-                    pre_trans_platform = trans_user['platform'].loc[j]
+                if pre_trans_platform != lst_trans_platform[j]:
+                    pre_trans_platform = lst_trans_platform[j]
                     cnt_trans_platform += 1
 
             if isTrain:
@@ -193,7 +205,7 @@ def process(n, isTrain=True):
             while end_idx < n_trans_user:
                 while end_idx < n_trans_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
                     end_idx += 1
-                if end_idx != pre_end_idx:
+                if end_idx != pre_end_idx and start_idx < n_trans_user and end_idx < n_trans_user:
                     gap_df = trans_user[(time_lst[start_idx] <= trans_user['tm_diff']) &
                                         (trans_user['tm_diff'] <= time_lst[end_idx])]
                     max_trans_amount_48h_n = max(max_trans_amount_48h_n, gap_df['amount'].values.sum())
@@ -218,5 +230,55 @@ def process(n, isTrain=True):
 
 
 # %%
+process(n_train, isTrain=True)
+process(n_test, isTrain=False)
+
+# %%
+# 删除省份数据
+train_base_df = train_base_df.drop(labels=[x for x in range(31)], axis=1)
+test_base_df = test_base_df.drop(labels=[x for x in range(31)], axis=1)
+
+# 删除city_20 - city_49
+train_base_df = train_base_df.drop(labels=['city_' + str(x) for x in range(20, 50)], axis=1)
+test_base_df = test_base_df.drop(labels=['city_' + str(x) for x in range(20, 50)], axis=1)
+
+# %%
+# 对city进行降维，降到20
+raw_train_base_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv')['city']
+raw_test_base_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')['city']
+city = pd.concat([raw_train_base_df, raw_test_base_df])
+values_ct_org = city.unique().tolist()
+values_ct = np.array(values_ct_org).reshape(len(values_ct_org), -1)
+enc = OneHotEncoder()
+enc.fit(values_ct)
+onehot = enc.transform(values_ct).toarray()
+
+pca = PCA(n_components=20)
+pca.fit(onehot)
+result = pca.transform(onehot)
+mp = dict(zip(values_ct_org, [code for code in result]))
+
+# 保存encoder
+pd.DataFrame.from_dict(data=mp, orient='columns')\
+    .to_csv(base_dir + '/dataset/dataset4/encoders/enc_city.csv', index=False)
+
+for i in range(len(raw_train_base_df)):
+    code = mp[raw_train_base_df['city'].loc[i]]
+    train_base_df.loc[i, ['city_' + str(x) for x in range(20)]] = code
+
+for i in range(len(raw_test_base_df)):
+    code = mp[raw_test_base_df['city'].loc[i]]
+    test_base_df.loc[i, ['city_' + str(x) for x in range(20)]] = code
+
+# %%
+# save
+train_main = train_base_df.join(feature_train_op).join(feature_train_trans)
+test_main = test_base_df.join(feature_test_op).join(feature_test_trans)
+train_main.to_csv(base_dir + '/dataset/dataset4/train_main.csv', index=False)
+test_main.to_csv(base_dir + '/dataset/dataset4/test_a_main.csv', index=False)
+
+
+# %%
+# trytrywater
 temp = pd.read_csv(r'C:\Users\RickyLi\Desktop\main_dataset.csv')
 print(temp['维度'].tolist())
