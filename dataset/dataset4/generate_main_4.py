@@ -7,6 +7,9 @@ from sklearn.decomposition import PCA
 
 base_dir = os.getcwd()
 
+if __name__ == '__main__':
+    pass
+
 # %%
 # 原来的需要保留的表头
 old_headers_op = ['user', 'n_op', 'op_type_perc', 'op_type_std', 'op_type_n', 'op_mode_perc', 'op_mode_std',
@@ -22,13 +25,13 @@ old_headers_trans = ['user', 'n_trans', 'trans_platform_perc', 'trans_platform_s
                      'trans_ip_3_std', 'trans_ip_3_nan_perc', 'trans_ip_3_ch_freq', 'trans_amount_48h_n',
                      'trans_48h_n', 'trans_platform_48h_n', 'trans_ip_48h_n']
 
-headers_op = ['n_op', 'op_type_perc', 'op_type_std', 'op_type_n', 'op_mode_perc', 'op_mode_std', 'op_mode_n',
+headers_op = ['user', 'n_op', 'op_type_perc', 'op_type_std', 'op_type_n', 'op_mode_perc', 'op_mode_std', 'op_mode_n',
               'op_device_perc', 'op_device_std', 'op_device_nan_perc', 'op_ip_perc', 'op_ip_std', 'op_ip_nan_perc',
               'op_ip_n', 'op_net_type_perc', 'op_net_type_std', 'op_net_type_nan_perc', 'op_channel_perc',
               'op_channel_std', 'op_channel_n', 'op_ip_3_perc', 'op_ip_3_std', 'op_ip_3_nan_perc', 'op_ip_3_n',
               'op_ip_3_ch_freq', 'op_ip_ch_freq', 'op_device_ch_freq', 'op_net_type_ch_freq', 'op_channel_ch_freq',
               'op_ip_48h_n', 'op_ip_3_48h_n', 'op_device_48h_n', 'op_48h_n', ]
-headers_trans = ['n_trans', 'trans_platform_perc', 'trans_platform_std', 'trans_tunnel_in_perc', 'trans_tunnel_in_std',
+headers_trans = ['user', 'n_trans', 'trans_platform_perc', 'trans_platform_std', 'trans_tunnel_in_perc', 'trans_tunnel_in_std',
                  'trans_tunnel_in_nan_perc', 'trans_tunnel_out_std', 'trans_amount_max', 'trans_amount_avg',
                  'trans_amount_std', 'trans_type1_0', 'trans_type1_1', 'trans_type1_2', 'trans_type1_3',
                  'trans_type1_4', 'trans_type1_perc', 'trans_type1_std', 'trans_ip_perc', 'trans_ip_std',
@@ -55,9 +58,9 @@ old_feature_test = pd.read_csv(base_dir + '/dataset/dataset2/testset/feature_tes
 # 将需要留下的特征搬运到新的矩阵中
 for feature in old_headers_op:
     feature_train_op[feature] = old_feature_train[feature]
-    feature_test_op[feature] = old_feature_train[feature]
+    feature_test_op[feature] = old_feature_test[feature]
 for feature in old_headers_trans:
-    feature_train_trans[feature] = old_feature_test[feature]
+    feature_train_trans[feature] = old_feature_train[feature]
     feature_test_trans[feature] = old_feature_test[feature]
 
 # %%
@@ -71,7 +74,7 @@ test_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.c
 # %%
 def process(n, isTrain=True):
     for i in range(n):
-        if i % 100 == 0:
+        if i % 1000 == 0:
             print(i)
 
         if isTrain:
@@ -139,8 +142,8 @@ def process(n, isTrain=True):
             start_time = time_lst[0]
             gap_df = op_user[(start_time <= op_user['tm_diff']) & (op_user['tm_diff'] <= start_time + gap)]
             end_idx = len(gap_df)
-            pre_end_idx = end_idx
-            while end_idx < n_op_user:
+            pre_end_idx = 0
+            while end_idx < n_op_user and start_idx < n_op_user:
                 while end_idx < n_op_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
                     end_idx += 1
                 if end_idx != pre_end_idx and start_idx < n_op_user and end_idx < n_op_user:
@@ -150,6 +153,7 @@ def process(n, isTrain=True):
                     max_op_ip_3_48h_n = max(max_op_ip_3_48h_n, gap_df['ip_3'].nunique())
                     max_op_device_48h_n = max(max_op_device_48h_n, gap_df['op_device'].nunique())
                     max_op_48h_n = max(max_op_48h_n, len(gap_df))
+                    pre_end_idx = end_idx
                 start_idx += 1
 
             if isTrain:
@@ -162,6 +166,25 @@ def process(n, isTrain=True):
                 feature_test_op['op_ip_3_48h_n'].loc[i] = max_op_ip_3_48h_n
                 feature_test_op['op_device_48h_n'].loc[i] = max_op_device_48h_n
                 feature_test_op['op_48h_n'].loc[i] = max_op_48h_n
+        else:
+            if isTrain:
+                feature_train_op['op_ip_ch_freq'].loc[i] = -1
+                feature_train_op['op_device_ch_freq'].loc[i] = -1
+                feature_train_op['op_net_type_ch_freq'].loc[i] = -1
+                feature_train_op['op_channel_ch_freq'].loc[i] = -1
+                feature_train_op['op_ip_48h_n'].loc[i] = -1
+                feature_train_op['op_ip_3_48h_n'].loc[i] = -1
+                feature_train_op['op_device_48h_n'].loc[i] = -1
+                feature_train_op['op_48h_n'].loc[i] = -1
+            else:
+                feature_test_op['op_ip_ch_freq'].loc[i] = -1
+                feature_test_op['op_device_ch_freq'].loc[i] = -1
+                feature_test_op['op_net_type_ch_freq'].loc[i] = -1
+                feature_test_op['op_channel_ch_freq'].loc[i] = -1
+                feature_test_op['op_ip_48h_n'].loc[i] = -1
+                feature_test_op['op_ip_3_48h_n'].loc[i] = -1
+                feature_test_op['op_device_48h_n'].loc[i] = -1
+                feature_test_op['op_48h_n'].loc[i] = -1
 
         if n_trans_user > 0:
             # 对 tm_diff 排序
@@ -201,8 +224,8 @@ def process(n, isTrain=True):
             start_time = time_lst[0]
             gap_df = trans_user[(start_time <= trans_user['tm_diff']) & (trans_user['tm_diff'] <= start_time + gap)]
             end_idx = len(gap_df)
-            pre_end_idx = end_idx
-            while end_idx < n_trans_user:
+            pre_end_idx = 0
+            while end_idx < n_trans_user and start_idx < n_trans_user:
                 while end_idx < n_trans_user-1 and time_lst[end_idx+1] - time_lst[start_idx] <= gap:
                     end_idx += 1
                 if end_idx != pre_end_idx and start_idx < n_trans_user and end_idx < n_trans_user:
@@ -213,30 +236,116 @@ def process(n, isTrain=True):
                     max_trans_platform_48h_n = max(max_trans_platform_48h_n, gap_df['platform'].nunique())
                     max_trans_ip_48h_n = max(max_trans_ip_48h_n, gap_df['ip'].nunique())
                     max_trans_ip_3_48h_n = max(max_trans_ip_3_48h_n, gap_df['ip_3'].nunique())
+                    pre_end_idx = end_idx
                 start_idx += 1
 
             if isTrain:
-                feature_train_trans['trans_amount_48h_n'] = max_trans_amount_48h_n
-                feature_train_trans['trans_48h_n'] = max_trans_48h_n
-                feature_train_trans['trans_platform_48h_n'] = max_trans_platform_48h_n
-                feature_train_trans['trans_ip_48h_n'] = max_trans_ip_48h_n
-                feature_train_trans['trans_ip_3_48h_n'] = max_trans_ip_3_48h_n
+                feature_train_trans['trans_amount_48h_n'].loc[i] = max_trans_amount_48h_n
+                feature_train_trans['trans_48h_n'].loc[i] = max_trans_48h_n
+                feature_train_trans['trans_platform_48h_n'].loc[i] = max_trans_platform_48h_n
+                feature_train_trans['trans_ip_48h_n'].loc[i] = max_trans_ip_48h_n
+                feature_train_trans['trans_ip_3_48h_n'].loc[i] = max_trans_ip_3_48h_n
             else:
-                feature_test_trans['trans_amount_48h_n'] = max_trans_amount_48h_n
-                feature_test_trans['trans_48h_n'] = max_trans_48h_n
-                feature_test_trans['trans_platform_48h_n'] = max_trans_platform_48h_n
-                feature_test_trans['trans_ip_48h_n'] = max_trans_ip_48h_n
-                feature_test_trans['trans_ip_3_48h_n'] = max_trans_ip_3_48h_n
+                feature_test_trans['trans_amount_48h_n'].loc[i] = max_trans_amount_48h_n
+                feature_test_trans['trans_48h_n'].loc[i] = max_trans_48h_n
+                feature_test_trans['trans_platform_48h_n'].loc[i] = max_trans_platform_48h_n
+                feature_test_trans['trans_ip_48h_n'].loc[i] = max_trans_ip_48h_n
+                feature_test_trans['trans_ip_3_48h_n'].loc[i] = max_trans_ip_3_48h_n
+        else:
+            if isTrain:
+                feature_train_trans['trans_ip_ch_freq'].loc[i] = -1
+                feature_train_trans['trans_platform_ch_freq'].loc[i] = -1
+                feature_train_trans['trans_amount_48h_n'].loc[i] = -1
+                feature_train_trans['trans_48h_n'].loc[i] = -1
+                feature_train_trans['trans_platform_48h_n'].loc[i] = -1
+                feature_train_trans['trans_ip_48h_n'].loc[i] = -1
+                feature_train_trans['trans_ip_3_48h_n'].loc[i] = -1
+            else:
+                feature_test_trans['trans_ip_ch_freq'].loc[i] = -1
+                feature_test_trans['trans_platform_ch_freq'].loc[i] = -1
+                feature_test_trans['trans_amount_48h_n'].loc[i] = -1
+                feature_test_trans['trans_48h_n'].loc[i] = -1
+                feature_test_trans['trans_platform_48h_n'].loc[i] = -1
+                feature_test_trans['trans_ip_48h_n'].loc[i] = -1
+                feature_test_trans['trans_ip_3_48h_n'].loc[i] = -1
 
 
 # %%
-process(n_train, isTrain=True)
+# process(n_train, isTrain=True)
 process(n_test, isTrain=False)
 
 # %%
+# 暂存特征
+feature_train_op.to_csv(base_dir + '/dataset/dataset4/trainset/feature_train_op.csv', index=False)
+feature_train_trans.to_csv(base_dir + '/dataset/dataset4/trainset/feature_train_trans.csv', index=False)
+feature_test_op.to_csv(base_dir + '/dataset/dataset4/testset/feature_test_op.csv', index=False)
+feature_test_trans.to_csv(base_dir + '/dataset/dataset4/testset/feature_test_trans.csv', index=False)
+
+# %%
+# 读取新特征
+feature_train_op = pd.read_csv(base_dir + '/dataset/dataset4/trainset/feature_train_op.csv')
+feature_train_trans = pd.read_csv(base_dir + '/dataset/dataset4/trainset/feature_train_trans.csv')
+feature_test_op = pd.read_csv(base_dir + '/dataset/dataset4/testset/feature_test_op.csv')
+feature_test_trans = pd.read_csv(base_dir + '/dataset/dataset4/testset/feature_test_trans.csv')
+
+# %%
+for i in range(n_train):
+    if feature_train_op['n_op'].loc[i] == 0:
+        feature_train_op['op_ip_ch_freq'].loc[i] = -1
+        feature_train_op['op_device_ch_freq'].loc[i] = -1
+        feature_train_op['op_net_type_ch_freq'].loc[i] = -1
+        feature_train_op['op_channel_ch_freq'].loc[i] = -1
+        feature_train_op['op_ip_48h_n'].loc[i] = -1
+        feature_train_op['op_ip_3_48h_n'].loc[i] = -1
+        feature_train_op['op_device_48h_n'].loc[i] = -1
+        feature_train_op['op_48h_n'].loc[i] = -1
+    if feature_train_trans['n_trans'].loc[i] == 0:
+        feature_train_trans['trans_ip_ch_freq'].loc[i] = -1
+        feature_train_trans['trans_platform_ch_freq'].loc[i] = -1
+        feature_train_trans['trans_amount_48h_n'].loc[i] = -1
+        feature_train_trans['trans_48h_n'].loc[i] = -1
+        feature_train_trans['trans_platform_48h_n'].loc[i] = -1
+        feature_train_trans['trans_ip_48h_n'].loc[i] = -1
+        feature_train_trans['trans_ip_3_48h_n'].loc[i] = -1
+
+for i in range(n_test):
+    if feature_test_op['n_op'].loc[i] == 0:
+        feature_test_op['op_ip_ch_freq'].loc[i] = -1
+        feature_test_op['op_device_ch_freq'].loc[i] = -1
+        feature_test_op['op_net_type_ch_freq'].loc[i] = -1
+        feature_test_op['op_channel_ch_freq'].loc[i] = -1
+        feature_test_op['op_ip_48h_n'].loc[i] = -1
+        feature_test_op['op_ip_3_48h_n'].loc[i] = -1
+        feature_test_op['op_device_48h_n'].loc[i] = -1
+        feature_test_op['op_48h_n'].loc[i] = -1
+    if feature_test_trans['n_trans'].loc[i] == 0:
+        feature_test_trans['trans_ip_ch_freq'].loc[i] = -1
+        feature_test_trans['trans_platform_ch_freq'].loc[i] = -1
+        feature_test_trans['trans_amount_48h_n'].loc[i] = -1
+        feature_test_trans['trans_48h_n'].loc[i] = -1
+        feature_test_trans['trans_platform_48h_n'].loc[i] = -1
+        feature_test_trans['trans_ip_48h_n'].loc[i] = -1
+        feature_test_trans['trans_ip_3_48h_n'].loc[i] = -1
+
+order = feature_train_op.columns.tolist()
+feature_train_op = feature_train_op[order[-1] + order[:-1]]
+order = feature_train_trans.columns.tolist()
+feature_train_trans = feature_train_trans[order[-1] + order[:-1]]
+order = feature_test_op.columns.tolist()
+feature_test_op = feature_test_op[order[-1] + order[:-1]]
+order = feature_test_trans.columns.tolist()
+feature_test_trans = feature_test_trans[order[-1] + order[:-1]]
+
+feature_train_op.to_csv(base_dir + '/dataset/dataset4/trainset/feature_train_op.csv', index=False)
+feature_train_trans.to_csv(base_dir + '/dataset/dataset4/trainset/feature_train_trans.csv', index=False)
+feature_test_op.to_csv(base_dir + '/dataset/dataset4/testset/feature_test_op.csv', index=False)
+feature_test_trans.to_csv(base_dir + '/dataset/dataset4/testset/feature_test_trans.csv', index=False)
+
+
+# %%
 # 删除省份数据
-train_base_df = train_base_df.drop(labels=[x for x in range(31)], axis=1)
-test_base_df = test_base_df.drop(labels=[x for x in range(31)], axis=1)
+train_base_df = train_base_df.drop(labels=[str(x) for x in range(31)], axis=1)
+test_base_df = test_base_df.drop(labels=[str(x) for x in range(31)], axis=1)
 
 # 删除city_20 - city_49
 train_base_df = train_base_df.drop(labels=['city_' + str(x) for x in range(20, 50)], axis=1)
@@ -244,9 +353,9 @@ test_base_df = test_base_df.drop(labels=['city_' + str(x) for x in range(20, 50)
 
 # %%
 # 对city进行降维，降到20
-raw_train_base_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv')['city']
-raw_test_base_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')['city']
-city = pd.concat([raw_train_base_df, raw_test_base_df])
+raw_train_base_df = pd.read_csv(base_dir + '/dataset/raw_dataset/trainset/train_base.csv')
+raw_test_base_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/test_a_base.csv')
+city = pd.concat([raw_train_base_df['city'], raw_test_base_df['city']])
 values_ct_org = city.unique().tolist()
 values_ct = np.array(values_ct_org).reshape(len(values_ct_org), -1)
 enc = OneHotEncoder()
@@ -263,19 +372,27 @@ pd.DataFrame.from_dict(data=mp, orient='columns')\
     .to_csv(base_dir + '/dataset/dataset4/encoders/enc_city.csv', index=False)
 
 for i in range(len(raw_train_base_df)):
+    if i % 1000 == 0:
+        print(i)
     code = mp[raw_train_base_df['city'].loc[i]]
     train_base_df.loc[i, ['city_' + str(x) for x in range(20)]] = code
 
 for i in range(len(raw_test_base_df)):
+    if i % 1000 == 0:
+        print(i)
     code = mp[raw_test_base_df['city'].loc[i]]
     test_base_df.loc[i, ['city_' + str(x) for x in range(20)]] = code
 
 # %%
 # save
+feature_train_op = feature_train_op.drop(labels='user', axis=1)
+feature_train_trans = feature_train_trans.drop(labels='user', axis=1)
+feature_test_op = feature_test_op.drop(labels='user', axis=1)
+feature_test_trans = feature_test_trans.drop(labels='user', axis=1)
 train_main = train_base_df.join(feature_train_op).join(feature_train_trans)
 test_main = test_base_df.join(feature_test_op).join(feature_test_trans)
-train_main.to_csv(base_dir + '/dataset/dataset4/train_main.csv', index=False)
-test_main.to_csv(base_dir + '/dataset/dataset4/test_a_main.csv', index=False)
+train_main.to_csv(base_dir + '/dataset/dataset4/trainset/train_main.csv', index=False)
+test_main.to_csv(base_dir + '/dataset/dataset4/testset/test_a_main.csv', index=False)
 
 
 # %%
