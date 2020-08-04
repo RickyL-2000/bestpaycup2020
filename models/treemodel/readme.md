@@ -2,6 +2,14 @@
 
 ## lightGBM
 
+### lgb_1_1
+
+第一个对lgb和rf进行尝试，白给
+
+### lgb_1_2
+
+仅对base进行自动化调参，结果0.66
+
 ### lgb_2_1_1
 
 自动化调参后的第一次原生lgbm接口实验
@@ -103,3 +111,20 @@ Early stopping, best iteration is:
 [1033]	valid_0's auc: 0.719666
 auc:  0.7196664865389145
 ```
+
+### lgb_4_1_1
+
+用了dataset4，是精简版的dataset2。跑分结果和lgb_2_1不相上下。没什么进展。
+
+### lgb_4_2
+
+将dataset4中的train_main中的op和trans为0的记录全部删除，做成train_main_part后训练的lgb（相当于分了两拨人分别训练）。
+
+效果奇差，只有0.5+
+
+
+## XGBoost
+
+### xgb_4_1
+
+对xgb进行尝试，初步感觉精度和lgb差不多
