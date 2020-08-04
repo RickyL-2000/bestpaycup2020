@@ -320,6 +320,7 @@ y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example.csv')
 
 # lr_1_1 的输出
 out_1_1 = pd.read_csv(base_dir + '/models/logistic_regression/output_1_1_1.csv')
+out_1_2_1 = pd.read_csv(base_dir + '/models/treemodel/output_1_2_1.csv')
 
 test_x = test_x[test_x[:, 0].argsort()]
 test_x = test_x[:, 1:].astype(float)
@@ -336,8 +337,15 @@ for i in range(len(test_df)):
         y_df['prob'].loc[i] = out_1_1['prob'].loc[i]
 
 # %%
+# 将无op或无trans记录的预测值换成lgb的out_1_2_1的
+test_df = pd.read_csv(base_dir + '/dataset/dataset4/testset/test_a_main.csv')
+for i in range(len(test_df)):
+    if test_df['n_op'].loc[i] == 0 or test_df['n_trans'].loc[i] == 0:
+        y_df['prob'].loc[i] = out_1_2_1['prob'].loc[i]
 
-y_df.to_csv(base_dir + '/models/treemodel/output_2_1_2.csv', index=False)
+# %%
+
+y_df.to_csv(base_dir + '/models/treemodel/output_2_1_3.csv', index=False)
 
 # %%
 # prediction validation
