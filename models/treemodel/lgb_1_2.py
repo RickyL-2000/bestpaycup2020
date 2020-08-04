@@ -339,7 +339,7 @@ for i in range(len(test_df)):
 
 # %%
 
-y_df.to_csv(base_dir + '/models/treemodel/output_lgb_base.csv', index=False)
+y_df.to_csv(base_dir + '/models/treemodel/output_1_2_1.csv', index=False)
 
 # %%
 # prediction validation
