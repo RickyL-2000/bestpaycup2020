@@ -6,13 +6,13 @@ base_dir = workspace_path
 os.chdir(workspace_path) # 把运行目录强制转移到【工作区】
 print(f"把运行目录强制转移到【工作区】{os.getcwd()}")
 
-# %%
+# %% 导入模块
 import pandas as pd
 import numpy as np
 import re
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.decomposition import PCA
-#%%
+#%% 路径
 TRAIN_BASE_PATH     = "./dataset/raw_dataset/trainset/train_base.csv"
 TRAIN_OP_PATH       = "./dataset/raw_dataset/trainset/train_op.csv"
 TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
@@ -29,7 +29,7 @@ PROCESSED_TRAIN_BASE_PATH = "./dataset/dataset3/trainset/train_base.csv"
 PROCESSED_TEST_BASE_PATH  = "./dataset/dataset3/testset/test_a_base.csv"
 
 
-# %%
+# %% 数据类型预处理函数：整型，缺失值，去零
 def process_base(base_path):
     # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
@@ -74,7 +74,7 @@ def process_base(base_path):
 
     return base_df
 
-#%%
+#%% 数据类型预处理
 for base_path,processed_base_path in [
     (TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),
     (TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
@@ -86,22 +86,12 @@ for base_path,processed_base_path in [
     with open(processed_base_path,"w") as f:
         base_df.to_csv(f,index=False)
 
-#%%
+#%% 省市独热编码函数
 def process_base_onehot(base_dir, dim1,dim2):
     train_df = pd.read_csv(PROCESSED_TRAIN_BASE_PATH)
     test_df = pd.read_csv(PROCESSED_TEST_BASE_PATH)
-    # province = pd.concat([train_df['province'], test_df['province']])
 
-    # values_pro = province.unique().tolist()
-    # m_pro = dict(zip(values_pro, range(len(values_pro))))
-    # train_df['province'] = train_df['province'].map(lambda x: m_pro[x])
-    # train_df = train_df.join(pd.get_dummies(train_df['province']))
-    # train_df = train_df.drop(labels='province', axis=1)
-
-    # test_df['province'] = test_df['province'].map(lambda x: m_pro[x])
-    # test_df = test_df.join(pd.get_dummies(test_df['province']))
-    # test_df = test_df.drop(labels='province', axis=1)
-
+    # province
     province = pd.concat([train_df['province'], test_df['province']])
     values_ct_org = province.unique().tolist()
     values_ct = np.array(values_ct_org).reshape(len(values_ct_org), -1)
@@ -128,6 +118,7 @@ def process_base_onehot(base_dir, dim1,dim2):
     test_df = test_df.join(newdf_test)
     test_df = test_df.drop(labels='province', axis=1)
 
+    # city
     city = pd.concat([train_df['city'], test_df['city']])
     values_ct_org = city.unique().tolist()
     values_ct = np.array(values_ct_org).reshape(len(values_ct_org), -1)
@@ -157,18 +148,8 @@ def process_base_onehot(base_dir, dim1,dim2):
     train_df.to_csv(PROCESSED_TRAIN_BASE_PATH, index=False)
     test_df.to_csv(PROCESSED_TEST_BASE_PATH, index=False)
 
-# %%
-process_base_onehot(os.getcwd(), dim1=8,dim2=64) # set to 8 and 64 for faster training
-
-
-# %%
-def delete_pro_31(base_dir):
-    test_df = pd.read_csv(PROCESSED_TEST_BASE_PATH)
-    test_df = test_df.drop(labels='31', axis=1)
-    test_df.to_csv(PROCESSED_TEST_BASE_PATH, index=False)
-
-# %%
-# delete_pro_31(base_dir=os.getcwd())
+# %% 省市独热编码
+process_base_onehot(os.getcwd(), dim1=8,dim2=78) # set to 8 and 64 for faster training
 
 # %% final check
 def show_missing(path):
@@ -183,10 +164,5 @@ def show_missing(path):
     print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
     for e in index:
         print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
-
-# processed_train_base = pd.read_csv(PROCESSED_TRAIN_BASE_PATH)
-# processed_test_base = pd.read_csv(PROCESSED_TEST_BASE_PATH)
-# show_missing(processed_test_base)
-# show_missing(processed_train_base)
 
 # %%
