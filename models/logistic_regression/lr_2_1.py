@@ -69,7 +69,7 @@ net = LR()
 # %%
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
-epochs = 10000
+epochs = 30000
 group_n = 10
 group_size = epochs // group_n
 

@@ -1,0 +1,3 @@
+# README
+
+先把dataset2中的trainset和testset原封不动拷贝过来，再用此目录下的脚本进行清洗

@@ -3,7 +3,6 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import init
 import numpy as np
 import os
 from sklearn.metrics import roc_auc_score
@@ -11,7 +10,7 @@ from sklearn.metrics import roc_auc_score
 # %%
 base_dir = os.getcwd()
 # base_dir = '/Users/jason/bestpaycup2020'
-x_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_main.csv')
+x_df = pd.read_csv(base_dir + '/dataset/dataset4/trainset/train_main.csv')
 y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/trainset/train_label.csv')
 data_x = np.array(x_df)
 # train_x = np.delete(train_x, 0, axis=1)
@@ -30,7 +29,8 @@ n, l = data_x.shape
 for j in range(l):
     meanVal = np.mean(data_x[:, j])
     stdVal = np.std(data_x[:, j])
-    data_x[:, j] = (data_x[:, j] - meanVal) / stdVal
+    if stdVal != 0 and not np.all(meanVal == 0.0):
+        data_x[:, j] = (data_x[:, j] - meanVal) / stdVal
 
 # %%
 # 打乱数据
@@ -44,25 +44,29 @@ np.random.shuffle(data_y)
 class LR(nn.Module):
     def __init__(self):
         super(LR, self).__init__()
-        self.hidden = nn.Linear(238, 256)
-        self.output = nn.Linear(256, 2)
+        self.fc = nn.Linear(128, 2)
 
     def forward(self, x):
-        mid = torch.sigmoid(self.hidden(x))
-        return self.output(mid)
+        out = self.fc(x)
+        out = torch.sigmoid(out)
+        return out
 
 
 # %%
 def get_score(pred, lab):
     pred = F.softmax(pred, dim=1).detach().numpy()
     lab = lab.detach().numpy()
-    return roc_auc_score(lab, pred[:, 1])
+    try:
+        return roc_auc_score(lab, pred[:, 1])
+    except:
+        print(lab)
+        print(pred[:, 1])
 
 
 # %%
 net = LR()
-for params in net.parameters():
-    init.normal_(params, mean=0, std=0.1)
+
+# %%
 criterion = nn.CrossEntropyLoss()
 optm = torch.optim.SGD(net.parameters(), lr=1e-3, momentum=0.9)
 epochs = 30000
@@ -95,9 +99,22 @@ for j in range(group_n):
             print("Epoch:{}, Loss:{:.4f}, Score：{:.2f}".format(i + 1, loss.item(), score))
 
 # %%
+# 保存模型 （可跳过）
+torch.save(net, base_dir + '/models/logistic_regression/lr_4_1.pt')
+
+# %%
+# 载入模型（可跳过）
+net = torch.load(base_dir + '/models/logistic_regression/lr_4_1.pt')
+net.eval()
+
+# %%
 # 测试集
-test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv'))
+test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset4/testset/test_a_main.csv'))
 y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example.csv')
+
+# %%
+# lgb_1_2 的输出
+out_1_2_1 = pd.read_csv(base_dir + '/models/treemodel/output_1_2_1.csv')
 
 # %%
 test_x = test_x[test_x[:, 0].argsort()]
@@ -115,5 +132,15 @@ test_in = torch.from_numpy(test_x).float()
 test_out = net(test_in)
 pred = F.softmax(test_out, dim=1).detach().numpy()[:, 1]
 y_df.loc[:, 'prob'] = pred
-y_df.to_csv(base_dir + '/models/logistic_regression/output_2_2_1.csv', index=False)
+
+# %%
+# 将无op或无trans记录的预测值换成out_1_2_1的
+test_df = pd.read_csv(base_dir + '/dataset/dataset4/testset/test_a_main.csv')
+for i in range(len(test_df)):
+    if test_df['n_op'].loc[i] == 0 or test_df['n_trans'].loc[i] == 0:
+        y_df['prob'].loc[i] = out_1_2_1['prob'].loc[i]
+
+# %%
+# 保存
+y_df.to_csv(base_dir + '/models/logistic_regression/output_4_1_1.csv', index=False)
 

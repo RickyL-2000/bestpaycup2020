@@ -8,3 +8,8 @@
 |lr_1_1|dataset1/train_base|只用了train_base数据集进行的逻辑回归|
 |lr_1_2|dataset1/train_base|在lr_1_1的基础上把网络加深|
 |lr_2_1|dataset2|对进行特征并入后的数据进行的逻辑回归+交叉验证|
+
+输出备注
+
+output_2_1_1.csv    3w次迭代，lr模型
+output_2_1_2.csv    1w次迭代，lr模型，成绩下降
