@@ -112,9 +112,150 @@ Early stopping, best iteration is:
 auc:  0.7196664865389145
 ```
 
+### output_2_1_4.csv
+
+将output_2_1_2进行0.3阈值放缩后的结果。
+
+分数 与output_2_1_2一样
+
+### output_2_1_5.csv
+
+将output_2_1_2进行0.23阈值放缩后的结果。
+
+分数与上一条一样
+
+### output_2_1_6
+
+在上一条的基础上将概率变成离散值
+
+分数：0.61
+
+**再也不许交离散值！！！！！！！！**
+
 ### lgb_4_1_1
 
 用了dataset4，是精简版的dataset2。跑分结果和lgb_2_1不相上下。没什么进展。
+
+### lgb_4_1_3 & lgb_4_1_4
+
+```python
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metrics': 'auc',
+    'learning_rate': 0.02,
+    'n_estimators': 10000,
+    'max_depth': 5,
+    'num_leaves': 15,
+    'max_bin': 255,
+    'min_data_in_leaf': 81,
+    'bagging_fraction': 0.6,
+    'bagging_freq': 0,
+    'feature_fraction': 0.8,
+    'lambda_l1': 0.0001,
+    'lambda_l2': 0.0001,
+    'min_split_gain': 0.0
+}
+
+model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=300)
+```
+
+稍微调了下早停和学习率，分数提升0.007
+
+```shell script
+[985]	valid_0's auc: 0.729851
+auc:  0.729850676255246
+```
+
+### lgb_4_1_5
+
+本地突破0.73！
+
+```python
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metrics': 'auc',
+    'learning_rate': 0.02,
+    'n_estimators': 10000,
+    'max_depth': 7,
+    'num_leaves': 15,
+    'max_bin': 255,
+    'min_data_in_leaf': 71,
+    'bagging_fraction': 0.6,
+    'bagging_freq': 0,
+    'feature_fraction': 0.8,
+    'lambda_l1': 0.0001,
+    'lambda_l2': 0.0001,
+    'min_split_gain': 0.0
+}
+
+model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=300)
+```
+
+```shell script
+[719]	valid_0's auc: 0.730432
+auc:  0.7304322519376283
+```
+
+### lgb_4_1_6
+
+```python
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metrics': 'auc',
+    'learning_rate': 0.01,
+    'n_estimators': 10000,
+    'max_depth': 7,
+    'num_leaves': 31,
+    'max_bin': 255,
+    'min_data_in_leaf': 71,
+    'bagging_fraction': 0.6,
+    'bagging_freq': 0,
+    'feature_fraction': 0.8,
+    'lambda_l1': 0.0001,
+    'lambda_l2': 0.0001,
+    'min_split_gain': 0.0
+}
+
+model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=200)
+
+```
+
+```shell script
+[1163]	valid_0's auc: 0.731604
+auc:  0.7316037799068713
+```
+
+### lgb_4_7
+
+```python
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metrics': 'auc',
+    'learning_rate': 0.01,
+    'n_estimators': 10000,
+    'max_depth': 7,
+    'num_leaves': 61,
+    'max_bin': 255,
+    'min_data_in_leaf': 71,
+    'bagging_fraction': 0.6,
+    'bagging_freq': 0,
+    'feature_fraction': 0.8,
+    'lambda_l1': 0.0001,
+    'lambda_l2': 0.0001,
+    'min_split_gain': 0.0
+}
+
+model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=200)
+```
+
+```shell script
+[849]	valid_0's auc: 0.731436
+auc:  0.7314362478172962
+```
 
 ### lgb_4_2
 

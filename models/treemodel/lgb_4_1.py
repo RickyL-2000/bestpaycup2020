@@ -68,7 +68,6 @@ gsearch1 = GridSearchCV(estimator=lgb.LGBMClassifier(
     metrics='auc',
     learning_rate=0.1,
     n_estimators=155,
-    max_depth=10,
     bagging_fraction=0.8,
     feature_fraction=0.8
 ),
@@ -231,19 +230,20 @@ params = {
     'metrics': 'auc',
     'learning_rate': 0.01,
     'n_estimators': 10000,
-    'max_depth': 5,
-    'num_leaves': 15,
+    'max_depth': 7,
+    'num_leaves': 61,
     'max_bin': 255,
-    'min_data_in_leaf': 81,
+    'min_data_in_leaf': 71,
     'bagging_fraction': 0.6,
     'bagging_freq': 0,
     'feature_fraction': 0.8,
     'lambda_l1': 0.0001,
     'lambda_l2': 0.0001,
-    'min_split_gain': 0.0
+    'min_split_gain': 0.1,
+    'subsample': 0.8
 }
 
-model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=500)
+model = lgb.train(params, train_data, num_boost_round=1000, valid_sets=val_data, early_stopping_rounds=200)
 
 y_hat = model.predict(X_val)
 
@@ -285,7 +285,7 @@ pred = model.predict(test_x, num_iteration=model.best_iteration)
 y_df.loc[:, 'prob'] = pred
 
 # %%
-# 将无op或无trans记录的预测值换成out_1_1的
+# 将无op或无trans记录的预测值换成out_1_2_1的
 test_df = pd.read_csv(base_dir + '/dataset/dataset4/testset/test_a_main.csv')
 for i in range(len(test_df)):
     if test_df['n_op'].loc[i] == 0 or test_df['n_trans'].loc[i] == 0:
@@ -293,4 +293,4 @@ for i in range(len(test_df)):
 
 # %%
 # save
-y_df.to_csv(base_dir + '/models/treemodel/output_4_1_1.csv', index=False)
+y_df.to_csv(base_dir + '/models/treemodel/output_4_1_7.csv', index=False)
