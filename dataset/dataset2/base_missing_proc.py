@@ -37,7 +37,7 @@ def process_base(base_path):
     # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
         if type(entry) is str:
-            level = re.search("^(category |level |Train_|TestA_)([0-9]+)",entry)
+            level = re.search("^(category |level |Train_|TestA_|TestB_)([0-9]+)",entry)
             if level:
                 return int(level.group(2))
         return entry

@@ -17,16 +17,20 @@ TRAIN_BASE_PATH     = "./dataset/raw_dataset/trainset/train_base.csv"
 TRAIN_OP_PATH       = "./dataset/raw_dataset/trainset/train_op.csv"
 TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
 
-TEST_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
-TEST_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
-TEST_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_A_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_A_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_A_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_B_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_B_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_B_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
 
 SAMPLE_BASE_PATH    = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
 SAMPLE_OP_PATH      = "./dataset/raw_dataset/sample_trainset/sample_op.csv"
 SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 PROCESSED_TRAIN_BASE_PATH = "./dataset/dataset1/trainset/train_base.csv"
-PROCESSED_TEST_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
+PROCESSED_TEST_A_BASE_PATH  = "./dataset/dataset1/testset/test_a_base.csv"
+PROCESSED_TEST_B_BASE_PATH  = "./dataset/dataset1/testset/test_b_base.csv"
 
 
 # %%
@@ -34,7 +38,7 @@ def process_base(base_path,verbose=False):
     # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
         if type(entry) is str:
-            level = re.search("^(category |level |Train_|TestA_)([0-9]+)",entry)
+            level = re.search("^(category |level |Train_ |TestA_ |TestB_)([0-9]+)",entry)
             if level:
                 return int(level.group(2))
         return entry
@@ -46,7 +50,8 @@ def process_base(base_path,verbose=False):
         base2[e] = base[e].apply(to_int)
 
     # 处理缺失值
-    base2["sex"][base2["sex"].isna()] = 3
+    # base2["sex"][base2["sex"].isna()] = 3
+    base2["sex"].fillna(base2["sex"].mode()[0], inplace=True)
     base2["balance_avg"].fillna(base2["balance_avg"].mode()[0],inplace=True)
     base2["balance1_avg"].fillna(base2["balance1_avg"].mode()[0],inplace=True)
     # base2["balance1_avg"][base2["balance1_avg"].isna()]=base2["balance1_avg"].mode()[0]
@@ -63,18 +68,30 @@ def process_base(base_path,verbose=False):
 
 
 #%%
-for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
+for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),
+                                      (TEST_A_BASE_PATH,PROCESSED_TEST_A_BASE_PATH),
+                                      (TEST_B_BASE_PATH,PROCESSED_TEST_B_BASE_PATH)]:
     base2 = process_base(base_path)
     if not os.path.exists(os.path.split(processed_base_path)[0]):
         os.makedirs(os.path.split(processed_base_path)[0])
     with open(processed_base_path,"w") as f:
         base2.to_csv(f,index=False)
 
+# %%
+base_path = TEST_B_BASE_PATH
+processed_base_path = PROCESSED_TEST_B_BASE_PATH
+base_df = process_base(base_path)
+if not os.path.exists(os.path.split(processed_base_path)[0]):
+    os.makedirs(os.path.split(processed_base_path)[0])
+with open(processed_base_path, "w") as f:
+    base_df.to_csv(f, index=False)
+
 
 # %%
 def process_base_onehot(base_dir, dim):
     train_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv')
-    test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
+    # test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv')
+    test_df = pd.read_csv(base_dir + '/dataset/dataset1/testset/test_b_base.csv')
     province = pd.concat([train_df['province'], test_df['province']])
     city = pd.concat([train_df['city'], test_df['city']])
 
@@ -114,7 +131,8 @@ def process_base_onehot(base_dir, dim):
     test_df = test_df.drop(labels='city', axis=1)
 
     train_df.to_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv', index=False)
-    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
+    # test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_a_base.csv', index=False)
+    test_df.to_csv(base_dir + '/dataset/dataset1/testset/test_b_base.csv', index=False)
 
 
 # %%
