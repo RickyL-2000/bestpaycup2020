@@ -1,3 +1,10 @@
+#%% 切换运行路径
+import os,sys
+cur_path = sys.path[0].split(os.path.sep)
+workspace_path = os.path.sep.join(cur_path[:cur_path.index("bestpaycup2020")+1])
+base_dir = workspace_path
+os.chdir(workspace_path) # 把运行目录强制转移到【工作区】
+print(f"把运行目录强制转移到【工作区】{os.getcwd()}")
 # %%
 import pandas as pd
 import torch
@@ -9,7 +16,7 @@ from sklearn.metrics import roc_auc_score
 
 # %%
 base_dir = os.getcwd()
-base_dir = '/Users/jason/bestpaycup2020'
+# base_dir = '/Users/jason/bestpaycup2020'
 x_df = pd.read_csv(base_dir + '/dataset/dataset1/trainset/train_base.csv')
 y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/trainset/train_label.csv')
 data_x = np.array(x_df)
