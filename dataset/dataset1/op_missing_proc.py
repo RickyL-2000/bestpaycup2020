@@ -14,10 +14,11 @@ from sklearn.decomposition import PCA
 
 # %%
 class OpPreProc:
-    def __init__(self, base_dir, isTrain=True, isSample=False):
+    def __init__(self, base_dir, isTrain=True, isSample=False, isB=False):
         self.base_dir = base_dir
         self.isTrain = isTrain
         self.isSample = isSample
+        self.isB = isB
 
         self.df = None
         self.df_org = None
@@ -34,6 +35,8 @@ class OpPreProc:
         else:
             if self.isTrain:
                 self.df = pd.read_csv(self.base_dir + r'/dataset/raw_dataset/trainset/train_op.csv')
+            elif self.isB:
+                self.df = pd.read_csv(self.base_dir + r'/dataset/raw_dataset/testset/test_b_op.csv')
             else:
                 self.df = pd.read_csv(self.base_dir + r'/dataset/raw_dataset/testset/test_a_op.csv')
             self.n, self.p = self.df.shape[0], self.df.shape[1]
@@ -42,6 +45,8 @@ class OpPreProc:
     def writeDF(self):
         if self.isTrain:
             self.df.to_csv(self.base_dir + '/dataset/dataset1/trainset/train_op.csv', index=False)
+        elif self.isB:
+            self.df.to_csv(self.base_dir + '/dataset/dataset1/testset/test_b_op.csv', index=False)
         else:
             self.df.to_csv(self.base_dir + '/dataset/dataset1/testset/test_a_op.csv', index=False)
 
@@ -163,8 +168,8 @@ class OpPreProc:
 # %%
 if __name__ == "__main__":
     base_dir = os.getcwd()  # 工作区路径
-    trainset_main = OpPreProc(base_dir, isTrain=False, isSample=False)
-    trainset_main.main()
+    testset_main = OpPreProc(base_dir, isTrain=False, isSample=False, isB=True)
+    testset_main.main()
 
 
 
