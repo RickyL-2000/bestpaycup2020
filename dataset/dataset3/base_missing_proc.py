@@ -39,23 +39,24 @@ def process_base(base_path):
                 return int(level.group(2))
         return entry
 
-    # 读取数据，数据转型
+    # 处理表顺序, 删除'user'列
     base_df = pd.read_csv(base_path)
     user = base_df['user'].astype('category')
-    base_df = base_df.sort_index(by='user',axis=0)
-    base_df = base_df.sort_index(axis=1)
+    base_df = base_df.sort_index(by='user',axis=0)  # 每列都根据user顺序重排，index行号即为user编号
+    base_df = base_df.sort_index(axis=1)            # 每行的属性根据属性名的字典顺序重排
     base_df.drop('user',axis=1,inplace=True)
     base_df.insert(loc=0,column='user',value=user)
 
+    # 数据转化为整形
     for e in base_df.columns:
         if e == 'user':
-            continue
+            continue    # 保留'user'列的string格式
         base_df[e] = base_df[e].apply(to_int)
 
-    # 显式处理缺失值
-    # sex={-1,0,1}
-    base_df["sex"][base_df["sex"]==0] = -1
-    base_df["sex"].fillna(0,inplace=True)
+    # 显式处理缺失值(默认隐式众数填补)
+    # # sex={-1,0,1}
+    # base_df["sex"][base_df["sex"]==0] = -1
+    # base_df["sex"].fillna(0,inplace=True)
 
     # 处理转化为数字后的0项
     for e in ['agreement1','agreement2','agreement3','agreement4']:
@@ -68,10 +69,14 @@ def process_base(base_path):
     base_df["service3"][base_df["service3"] != -1] = base_df["service3_level"][base_df["service3_level"].notna()]
     base_df.drop("service3_level",axis=1,inplace=True)    # 删除service3_level列
 
+    # 省市独热编码太费时且比重很小, 故直接删除省市信息
+    base_df.drop('city',axis=1,inplace=True)
+    base_df.drop('province',axis=1,inplace=True)
+
+
     # 隐式处理其余缺失值
     for e in base_df.columns:
         base_df[e].fillna(base_df[e].mode()[0],inplace=True)    
-
     return base_df
 
 #%% 数据类型预处理
@@ -149,7 +154,9 @@ def process_base_onehot(base_dir, dim1,dim2):
     test_df.to_csv(PROCESSED_TEST_BASE_PATH, index=False)
 
 # %% 省市独热编码
-process_base_onehot(os.getcwd(), dim1=8,dim2=78) # set to 8 and 64 for faster training
+# process_base_onehot(os.getcwd(), dim1=8,dim2=78) # set to 8 and 64 for faster training
+
+
 
 # %% final check
 def show_missing(path):
