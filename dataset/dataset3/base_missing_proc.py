@@ -17,16 +17,20 @@ TRAIN_BASE_PATH     = "./dataset/raw_dataset/trainset/train_base.csv"
 TRAIN_OP_PATH       = "./dataset/raw_dataset/trainset/train_op.csv"
 TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
 
-TEST_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
-TEST_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
-TEST_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_A_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_A_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_A_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_B_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_B_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_B_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
 
 SAMPLE_BASE_PATH    = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
 SAMPLE_OP_PATH      = "./dataset/raw_dataset/sample_trainset/sample_op.csv"
 SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 PROCESSED_TRAIN_BASE_PATH = "./dataset/dataset3/trainset/train_base.csv"
-PROCESSED_TEST_BASE_PATH  = "./dataset/dataset3/testset/test_a_base.csv"
+PROCESSED_TEST_A_BASE_PATH  = "./dataset/dataset3/testset/test_a_base.csv"
+PROCESSED_TEST_B_BASE_PATH  = "./dataset/dataset3/testset/test_b_base.csv"
 
 
 # %% 数据类型预处理函数：整型，缺失值，去零
@@ -42,7 +46,8 @@ def process_base(base_path):
     # 处理表顺序, 删除'user'列
     base_df = pd.read_csv(base_path)
     user = base_df['user'].astype('category')
-    base_df = base_df.sort_index(by='user',axis=0)  # 每列都根据user顺序重排，index行号即为user编号
+    base_df = base_df.sort_values(by='user',axis=0)  # 每列都根据user顺序重排，index行号即为user编号
+    # base_df = base_df.sort_index(axis=0)
     base_df = base_df.sort_index(axis=1)            # 每行的属性根据属性名的字典顺序重排
     base_df.drop('user',axis=1,inplace=True)
     base_df.insert(loc=0,column='user',value=user)
@@ -77,19 +82,26 @@ def process_base(base_path):
     # 隐式处理其余缺失值
     for e in base_df.columns:
         base_df[e].fillna(base_df[e].mode()[0],inplace=True)    
+
+    print(f"{base_path} has shape {base_df.shape} after processing")
+    
     return base_df
+
+
 
 #%% 数据类型预处理
 for base_path,processed_base_path in [
     (TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),
-    (TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
+    ( TEST_A_BASE_PATH, PROCESSED_TEST_A_BASE_PATH),
+    ( TEST_B_BASE_PATH, PROCESSED_TEST_B_BASE_PATH),
+    ]:
     
     base_df = process_base(base_path)
 
     if not os.path.exists(os.path.split(processed_base_path)[0]):
         os.makedirs(os.path.split(processed_base_path)[0])
     with open(processed_base_path,"w") as f:
-        base_df.to_csv(f,index=False)
+        base_df.to_csv(f,index=False,line_terminator='\n')
 
 #%% 省市独热编码函数
 def process_base_onehot(base_dir, dim1,dim2):
@@ -171,5 +183,3 @@ def show_missing(path):
     print("属性".ljust(16),"缺失量".ljust(8),"种类数".ljust(10))  # 值的种类
     for e in index:
         print(f"{e:<20}{base[e].isnull().sum():<8}{len(base[e].value_counts()):<10}")  # 值的种类
-
-# %%

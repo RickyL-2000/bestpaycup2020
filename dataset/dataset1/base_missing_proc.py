@@ -38,7 +38,7 @@ def process_base(base_path,verbose=False):
     # TODO: provider, province和city都各有一个缺失值，需要众数填补
     def to_int(entry):
         if type(entry) is str:
-            level = re.search("^(category |level |Train_ |TestA_ |TestB_)([0-9]+)",entry)
+            level = re.search("^(category |level |Train_|TestA_|TestB_)([0-9]+)",entry)
             if level:
                 return int(level.group(2))
         return entry
@@ -61,6 +61,8 @@ def process_base(base_path,verbose=False):
     base2["service3"][base2["service3"] != -1] = base2["service3_level"][base2["service3_level"].notna()]
     base2.drop("service3_level",axis=1,inplace=True)    # 删除service3_level列
 
+    print(f"{base_path} has shape {base2.shape} after processing")
+
     if verbose:
         print(base2.info())
         print(base2.discribe())
@@ -75,16 +77,16 @@ for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH
     if not os.path.exists(os.path.split(processed_base_path)[0]):
         os.makedirs(os.path.split(processed_base_path)[0])
     with open(processed_base_path,"w") as f:
-        base2.to_csv(f,index=False)
+        base2.to_csv(f,index=False,line_terminator='\n')
 
-# %%
-base_path = TEST_B_BASE_PATH
-processed_base_path = PROCESSED_TEST_B_BASE_PATH
-base_df = process_base(base_path)
-if not os.path.exists(os.path.split(processed_base_path)[0]):
-    os.makedirs(os.path.split(processed_base_path)[0])
-with open(processed_base_path, "w") as f:
-    base_df.to_csv(f, index=False)
+# # %%
+# base_path = TEST_B_BASE_PATH
+# processed_base_path = PROCESSED_TEST_B_BASE_PATH
+# base_df = process_base(base_path)
+# if not os.path.exists(os.path.split(processed_base_path)[0]):
+#     os.makedirs(os.path.split(processed_base_path)[0])
+# with open(processed_base_path, "w") as f:
+#     base_df.to_csv(f, index=False)
 
 
 # %%
