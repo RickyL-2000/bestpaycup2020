@@ -17,17 +17,20 @@ TRAIN_BASE_PATH     = "./dataset/raw_dataset/trainset/train_base.csv"
 TRAIN_OP_PATH       = "./dataset/raw_dataset/trainset/train_op.csv"
 TRAIN_TRANS_PATH    = "./dataset/raw_dataset/trainset/train_trans.csv"
 
-TEST_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
-TEST_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
-TEST_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_A_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_A_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_A_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
+TEST_B_BASE_PATH      = "./dataset/raw_dataset/testset/test_a_base.csv"
+TEST_B_OP_PATH        = "./dataset/raw_dataset/testset/test_a_op.csv"
+TEST_B_TRANS_PATH     = "./dataset/raw_dataset/testset/test_a_trans.csv"
 
 SAMPLE_BASE_PATH    = "./dataset/raw_dataset/sample_trainset/sample_base.csv"
 SAMPLE_OP_PATH      = "./dataset/raw_dataset/sample_trainset/sample_op.csv"
 SAMPLE_TRANS_PATH   = "./dataset/raw_dataset/sample_trainset/sample_trans.csv"
 
 PROCESSED_TRAIN_BASE_PATH = "./dataset/dataset2/trainset/train_base.csv"
-PROCESSED_TEST_BASE_PATH  = "./dataset/dataset2/testset/test_a_base.csv"
-
+PROCESSED_TEST_A_BASE_PATH  = "./dataset/dataset2/testset/test_a_base.csv"
+PROCESSED_TEST_B_BASE_PATH  = "./dataset/dataset2/testset/test_b_base.csv"
 
 # %%
 def process_base(base_path):
@@ -59,14 +62,23 @@ def process_base(base_path):
     return base_df
 
 #%%
-for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_BASE_PATH,PROCESSED_TEST_BASE_PATH)]:
+for base_path,processed_base_path in [(TRAIN_BASE_PATH,PROCESSED_TRAIN_BASE_PATH),(TEST_A_BASE_PATH,PROCESSED_TEST_A_BASE_PATH)]:
     base_df = process_base(base_path)
     if not os.path.exists(os.path.split(processed_base_path)[0]):
         os.makedirs(os.path.split(processed_base_path)[0])
     with open(processed_base_path,"w") as f:
         base_df.to_csv(f,index=False)
 
+# %%
+base_path = TEST_B_BASE_PATH
+processed_base_path = PROCESSED_TEST_B_BASE_PATH
+base_df = process_base(base_path)
+if not os.path.exists(os.path.split(processed_base_path)[0]):
+    os.makedirs(os.path.split(processed_base_path)[0])
+with open(processed_base_path, "w") as f:
+    base_df.to_csv(f, index=False)
 
+# %%
 def process_base_onehot(base_dir, dim):
     train_df = pd.read_csv(PROCESSED_TRAIN_BASE_PATH)
     test_df = pd.read_csv(PROCESSED_TEST_BASE_PATH)
