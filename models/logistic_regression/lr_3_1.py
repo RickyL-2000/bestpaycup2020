@@ -41,8 +41,9 @@ class BaseFactory():
     class Base(Dataset):
         def __init__(self,base,label) -> None:
             assert len(base)==len(label)
-            self.base =   base.reset_index(drop=True).drop('user',axis=1)
+            self.base  = base.reset_index(drop=True).drop('user',axis=1)
             self.label = label.reset_index(drop=True).drop('user',axis=1)
+            self.normalize()
 
         def __len__(self):
             return len(self.base)
@@ -52,10 +53,13 @@ class BaseFactory():
             base_y = self.label.iloc[index].loc['label']
             return base_x, base_y
 
+        def normalize(self):
+            self.base= (self.base - self.base.mean()) / self.base.std()
+
 
     def __init__(self,base_csv_file,label_file,test_rate):
         self.base   = pd.read_csv(base_csv_file).sort_values(by='user').reset_index(drop=True)
-        self.label  =    pd.read_csv(label_file).sort_values(by='user').reset_index(drop=True)
+        self.label  = pd.read_csv(label_file).sort_values(by='user').reset_index(drop=True)
         self.balance()
         self.base_train,self.base_test, self.label_train,self.label_test = train_test_split(
             self.balance_base,self.balance_label,
@@ -92,17 +96,17 @@ train_base,test_base = base_factory.build_dataset()
 class Net(nn.Module):
     def __init__(self):
         super(Net,self).__init__()
-        self.bn0      = nn.BatchNorm1d(128)
-        self.all_fc1  = nn.Linear(128,256)
-        self.bn1      = nn.BatchNorm1d(256)
-        self.all_fc2  = nn.Linear(256,2)
+        # self.bn0      = nn.BatchNorm1d(128)
+        self.fc1  = nn.Linear(128,2)
+        # self.bn1      = nn.BatchNorm1d(256)
+        # self.fc2  = nn.Linear(256,2)
 
     def forward(self,x):
-        x = self.bn0(x)
-        x = self.all_fc1(x)
-        x = torch.relu(x)
-        x = self.bn1(x)
-        x = self.all_fc2(x)
+        # x = self.bn0(x)
+        x = self.fc1(x)
+        x = torch.sigmoid(x)
+        # x = self.bn1(x)
+        # x = self.fc2(x)
         return x
 
 net=Net()
@@ -115,9 +119,9 @@ net.zero_grad()
 out.backward(torch.ones_like(out))
 
 # %% 超参
-NUM_EPOCH       = 5
-BATCH_SIZE      = 10
-PRINT_PER_BATCH = 20
+NUM_EPOCH       = 300
+BATCH_SIZE      = 1024
+PRINT_PER_BATCH = 5
 
 LR              = 1e-3
 # SGD
@@ -133,8 +137,8 @@ BALANCE_RATE    = 0.5
 train_base_dl = DataLoader(train_base,batch_size=BATCH_SIZE,shuffle=True,drop_last=True)
 # criterion = nn.MSELoss()     # 输出一个值时，用MSE平方收敛更快
 criterion = nn.CrossEntropyLoss()   # 输出两个得分时，用交叉熵函数
-# optimizer = optim.SGD(net.parameters(),lr=LR,momentum=MOMENTUM)
-optimizer = optim.Adam(net.parameters(),lr=LR, betas=BETAS, eps=EPS, weight_decay=WEIGHT_DECAY)
+optimizer = optim.SGD(net.parameters(),lr=LR,momentum=MOMENTUM)
+# optimizer = optim.Adam(net.parameters(),lr=LR, betas=BETAS, eps=EPS, weight_decay=WEIGHT_DECAY)
 
 #%% 模型初始化，准备记录变量
 net.train() # fix BatchNorm and Dropout layer
