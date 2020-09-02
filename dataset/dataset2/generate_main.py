@@ -2,6 +2,8 @@
 import os
 import pandas as pd
 import numpy as np
+import threading
+import time
 
 base_dir = os.getcwd()
 
@@ -33,15 +35,21 @@ print(len(header))
 
 # %%
 feature_train = pd.DataFrame(columns=header)
-feature_test = pd.DataFrame(columns=header)
+feature_test_a = pd.DataFrame(columns=header)
+feature_test_b = pd.DataFrame(columns=header)
 train_base_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_base.csv')
 train_op_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_op.csv')
 train_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_trans.csv')
-test_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_base.csv')
-test_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_op.csv')
-test_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.csv')
+test_a_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_base.csv')
+test_a_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_op.csv')
+test_a_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.csv')
+test_b_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_base.csv')
+test_b_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_op.csv')
+test_b_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_trans.csv')
 n_train = len(train_base_df)
-n_test = len(test_base_df)
+n_test_a = len(test_a_base_df)
+n_test_b = len(test_b_base_df)
+
 
 # %%
 # load encoder
@@ -92,19 +100,24 @@ for col in type2.columns.values:
 
 
 # %%
-def process(n, isTrain=True):
+def process(n, isTrain=True, isA=False):
     for i in range(n):
         if i % 1000 == 0:
+            print("train - " if isTrain else "test_a - " if isA else "test_b - ", end='')
             print(i)
 
         if isTrain:
             cur_user = train_base_df['user'].loc[i]
             tr_trans_user = train_trans_df[train_trans_df['user'] == cur_user]  # 该用户的trans记录
             tr_op_user = train_op_df[train_op_df['user'] == cur_user]  # 该用户的op记录
+        elif isA:
+            cur_user = test_a_base_df['user'].loc[i]
+            tr_trans_user = test_a_trans_df[test_a_trans_df['user'] == cur_user]  # 该用户的trans记录
+            tr_op_user = test_a_op_df[test_a_op_df['user'] == cur_user]  # 该用户的op记录
         else:
-            cur_user = test_base_df['user'].loc[i]
-            tr_trans_user = test_trans_df[test_trans_df['user'] == cur_user]  # 该用户的trans记录
-            tr_op_user = test_op_df[test_op_df['user'] == cur_user]  # 该用户的op记录
+            cur_user = test_b_base_df['user'].loc[i]
+            tr_trans_user = test_b_trans_df[test_b_trans_df['user'] == cur_user]  # 该用户的trans记录
+            tr_op_user = test_b_op_df[test_b_op_df['user'] == cur_user]  # 该用户的op记录
 
         n_tr_trans_user = len(tr_trans_user)  # 该用户的trans记录条数
         n_tr_op_user = len(tr_op_user)  # 该用户的op记录条数
@@ -363,36 +376,69 @@ def process(n, isTrain=True):
         ### 填入feature矩阵
         if isTrain:
             feature_train.loc[len(feature_train)] = line
+        elif isA:
+            feature_test_a.loc[len(feature_test_a)] = line
         else:
-            feature_test.loc[len(feature_test)] = line
+            feature_test_b.loc[len(feature_test_b)] = line
 
     # 存
     if isTrain:
         feature_train.to_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv', index=False)
+    elif isA:
+        feature_test_a.to_csv(base_dir + '/dataset/dataset2/testset/feature_test_a.csv', index=False)
     else:
-        feature_test.to_csv(base_dir + '/dataset/dataset2/testset/feature_test.csv', index=False)
+        feature_test_b.to_csv(base_dir + '/dataset/dataset2/testset/feature_test_b.csv', index=False)
 
 
 # %%
-# process(n_train, isTrain=True)
-process(n_test, isTrain=False)
+process(n_train, isTrain=True)
+process(n_test_a, isTrain=False, isA=True)
+process(n_test_b, isTrain=False, isA=False)
+
+# %%
+# 多线程
+def process_threaded(n_train, n_test_a, n_test_b):
+
+    def process1():
+        process(n_train, isTrain=True)
+
+    def process2():
+        process(n_test_a, isTrain=False, isA=True)
+
+    def process3():
+        process(n_test_b, isTrain=False, isA=False)
+
+    t1 = threading.Thread(target=process1)
+    t1.start()
+    t2 = threading.Thread(target=process2)
+    t2.start()
+    t3 = threading.Thread(target=process3)
+    t3.start()
+
+# %%
+process_threaded(n_train, n_test_a, n_test_b)
 
 # %%
 # 并入主矩阵
-### 以下四行可以不跑
+### 以下l六行可以不跑
 feature_train = pd.read_csv(base_dir + '/dataset/dataset2/trainset/feature_train.csv')
-feature_test = pd.read_csv(base_dir + '/dataset/dataset2/testset/feature_test.csv')
+feature_test_a = pd.read_csv(base_dir + '/dataset/dataset2/testset/feature_test_a.csv')
+feature_test_b = pd.read_csv(base_dir + '/dataset/dataset2/testset/feature_test_b.csv')
 train_base_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_base.csv')
-test_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_base.csv')
+test_a_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_base.csv')
+test_b_base_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_base.csv')
 
 feature_train = feature_train.drop(labels='user', axis=1)
-feature_test = feature_test.drop(labels='user', axis=1)
+feature_test_a = feature_test_a.drop(labels='user', axis=1)
+feature_test_b = feature_test_b.drop(labels='user', axis=1)
 
 train_base_df = train_base_df.join(feature_train)
-test_base_df = test_base_df.join(feature_test)
+test_a_base_df = test_a_base_df.join(feature_test_a)
+test_b_base_df = test_b_base_df.join(feature_test_b)
 
 train_base_df.to_csv(base_dir + '/dataset/dataset2/trainset/train_main.csv', index=False)
-test_base_df.to_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv', index=False)
+test_a_base_df.to_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv', index=False)
+test_b_base_df.to_csv(base_dir + '/dataset/dataset2/testset/test_b_main.csv', index=False)
 
 # %%
 # #######################以下为试水专用########################### #
