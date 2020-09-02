@@ -63,13 +63,14 @@ params = {
 
 # %%
 # 调参，找出最佳 n_estimators
+# n_estimators: 47
 clf = lgb.cv(params, train_data, num_boost_round=1000, nfold=5, stratified=False, shuffle=True, metrics='auc',
              early_stopping_rounds=50, seed=0)
 
 print('best n_estimators:', len(clf['auc-mean']))
 print('best cv score:', pd.Series(clf['auc-mean']).max())
 
-# best:54
+
 # %%
 # 调参，确定max_depth和num_leaves
 params_test1 = {
@@ -82,7 +83,7 @@ gsearch1 = GridSearchCV(estimator=lgb.LGBMClassifier(
     objective='binary',
     metrics='auc',
     learning_rate=0.1,
-    n_estimators=54,
+    n_estimators=47,
     max_depth=10,
     bagging_fraction=0.8,
     feature_fraction=0.8
@@ -97,7 +98,9 @@ gsearch1.fit(X_train, y_train)
 print(gsearch1.best_params_)
 print(gsearch1.best_score_)
 # output:
-# {'max_depth': 7, 'num_leaves': 35}
+# 
+# 调参，确定max_depth和num_leaves...
+# {'max_depth': 7, 'num_leaves': 20}
 # 0.6860003095778059
 
 
@@ -113,9 +116,9 @@ gsearch2 = GridSearchCV(
                                  objective='binary',
                                  metrics='auc',
                                  learning_rate=0.1,
-                                 n_estimators=54,
+                                 n_estimators=47,
                                  max_depth=7,
-                                 num_leaves=35,
+                                 num_leaves=20,
                                  bagging_fraction=0.8,
                                  feature_fraction=0.8),
     param_grid=params_test2, scoring='roc_auc', cv=5, n_jobs=-1
@@ -127,8 +130,8 @@ print(gsearch2.best_params_)
 print(gsearch2.best_score_)
 
 # output:
-# {'max_bin': 45, 'min_data_in_leaf': 81}
-# 0.7130982903950965
+# {'max_bin': 5, 'min_data_in_leaf': 51}
+# 0.6849877309744751
 
 # %%
 # 确定 feature_fraction, bagging_fraction, bagging_freq
@@ -143,11 +146,11 @@ gsearch3 = GridSearchCV(
                                  objective='binary',
                                  metrics='auc',
                                  learning_rate=0.1,
-                                 n_estimators=54,
+                                 n_estimators=47,
                                  max_depth=7,
-                                 num_leaves=35,
-                                 max_bin=45,
-                                 min_data_in_leaf=81),
+                                 num_leaves=20,
+                                 max_bin=5,
+                                 min_data_in_leaf=51),
     param_grid=params_test3, scoring='roc_auc', cv=5, n_jobs=-1
 )
 
@@ -157,12 +160,12 @@ print(gsearch3.best_params_)
 print(gsearch3.best_score_)
 
 # output
-# {'bagging_fraction': 0.3, 'bagging_freq': 0, 'feature_fraction': 0.4}
-# 0.7130982903950965
+# {'bagging_fraction': 0.3, 'bagging_freq': 0, 'feature_fraction': 0.5}
+# 0.6856456152180354
 
 # %%
 # 确定 lambda_l1 和 lambda_l2
-params_test4 = {'lambda_l1': [0.9, 1.0, 1.2 , 1.3, 1.4,1.5,1.6],
+params_test4 = {'lambda_l1': [0.7, 0.8, 0.9, 1.0, 1.2 , 1.3],
                 'lambda_l2': [0.4, 0.5, 0.6]}
 
 gsearch4 = GridSearchCV(
@@ -170,14 +173,14 @@ gsearch4 = GridSearchCV(
                                  objective='binary',
                                  metrics='auc',
                                  learning_rate=0.1,
-                                 n_estimators=54,
+                                 n_estimators=47,
                                  max_depth=7,
-                                 num_leaves=35,
-                                 max_bin=45,
-                                 min_data_in_leaf=81,
+                                 num_leaves=20,
+                                 max_bin=5,
+                                 min_data_in_leaf=51,
                                  bagging_fraction=0.3,
                                  bagging_freq=0,
-                                 feature_fraction=0.4),
+                                 feature_fraction=0.5),
     param_grid=params_test4, scoring='roc_auc', cv=5, n_jobs=-1
 )
 
@@ -187,8 +190,8 @@ print(gsearch4.best_params_)
 print(gsearch4.best_score_)
 
 # output
-# {'lambda_l1': 1.0, 'lambda_l2': 0.5}
-# 0.7132416453983882
+# {'lambda_l1': 0.9, 'lambda_l2': 0.5}
+# 0.6869625897803501
 
 # %%
 # 确定 min_split_gain
@@ -199,15 +202,15 @@ gsearch5 = GridSearchCV(
                                  objective='binary',
                                  metrics='auc',
                                  learning_rate=0.1,
-                                 n_estimators=54,
+                                 n_estimators=47,
                                  max_depth=7,
-                                 num_leaves=35,
-                                 max_bin=45,
-                                 min_data_in_leaf=81,
+                                 num_leaves=20,
+                                 max_bin=5,
+                                 min_data_in_leaf=51,
                                  bagging_fraction=0.3,
                                  bagging_freq=0,
-                                 feature_fraction=0.4,
-                                 lambda_l1=1.0,
+                                 feature_fraction=0.5,
+                                 lambda_l1=0.9,
                                  lambda_l2=0.5),
     param_grid=params_test5, scoring='roc_auc', cv=5, n_jobs=-1
 )
@@ -219,7 +222,7 @@ print(gsearch5.best_score_)
 
 # output
 # {'min_split_gain': 0.0}
-# 0.7117714487623986
+# 0.6869625897803501
 
 # %%
 train_data = lgb.Dataset(X_train, label=y_train)
@@ -229,16 +232,16 @@ params = {
     'boosting_type': 'gbdt',
     'objective': 'binary',
     'metrics': 'auc',
-    'learning_rate': 0.01,
+    'learning_rate': 0.05,
     'n_estimators': 10000,
     'max_depth': 7,
-    'num_leaves': 35,
-    'max_bin': 45,
-    'min_data_in_leaf': 81,
+    'num_leaves': 20,
+    'max_bin': 5,
+    'min_data_in_leaf': 51,
     'bagging_fraction': 0.3,
     'bagging_freq': 0,
-    'feature_fraction': 0.4,
-    'lambda_l1': 1.0,
+    'feature_fraction': 0.5,
+    'lambda_l1': 0.9,
     'lambda_l2': 0.5,
     'min_split_gain': 0.0
 }
@@ -269,11 +272,8 @@ importance.to_csv(base_dir + '/models/treemodel/lgb_2_1_weight2.csv', index=Fals
 # %%
 # model prediction
 # 测试集
-test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset4/testset/test_a_base.csv'))
-y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example.csv')
-
-# lr_1_1 的输出
-out_1_1 = pd.read_csv(base_dir + '/models/logistic_regression/output_1_1_1.csv')
+test_x = np.array(pd.read_csv(base_dir + '/dataset/dataset1/testset/test_b_base.csv'))
+y_df = pd.read_csv(base_dir + '/dataset/raw_dataset/testset/submit_example_b.csv')
 
 test_x = test_x[test_x[:, 0].argsort()]
 test_x = test_x[:, 1:].astype(float)
@@ -284,14 +284,14 @@ y_df.loc[:, 'prob'] = pred
 
 # %%
 # 将无op或无trans记录的预测值换成out_1_1的
-test_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_main.csv')
+test_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_main.csv')
 for i in range(len(test_df)):
     if test_df['n_op'].loc[i] == 0 or test_df['n_trans'].loc[i] == 0:
         y_df['prob'].loc[i] = out_1_1['prob'].loc[i]
 
 # %%
 
-y_df.to_csv(base_dir + '/models/treemodel/output_1_2_1.csv', index=False)
+y_df.to_csv(base_dir + '/models/treemodel/output_1_3_1.csv', index=False)
 
 # %%
 # prediction validation
