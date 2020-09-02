@@ -9,12 +9,13 @@ base_dir = os.getcwd()
 # %%
 train_op_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_op.csv')
 train_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/trainset/train_trans.csv')
-test_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_op.csv')
-test_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.csv')
-
+test_a_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_op.csv')
+test_a_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_a_trans.csv')
+test_b_op_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_op.csv')
+test_b_trans_df = pd.read_csv(base_dir + '/dataset/dataset2/testset/test_b_trans.csv')
 # %%
 # op_type onehot+pca
-op_type = pd.concat([train_op_df['op_type'], test_op_df['op_type']])
+op_type = pd.concat([train_op_df['op_type'], test_a_op_df['op_type'], test_b_op_df['op_type']])
 dim_op_type = 10
 
 values_op_type_org = op_type.unique().tolist()      # 原来shape的values
@@ -33,7 +34,7 @@ pd.DataFrame.from_dict(data=mp_op_type, orient='columns')\
 
 # %%
 # op_mode onehot+pca
-op_mode = pd.concat([train_op_df['op_mode'], test_op_df['op_mode']])
+op_mode = pd.concat([train_op_df['op_mode'], test_a_op_df['op_mode'], test_b_op_df['op_mode']])
 dim_op_mode = 10
 
 values_op_mode_org = op_mode.unique().tolist()      # 原来shape的values
@@ -52,7 +53,7 @@ pd.DataFrame.from_dict(data=mp_op_mode, orient='columns')\
 
 # %%
 # net_type onehot
-net_type = pd.concat([train_op_df['net_type'], test_op_df['net_type']])
+net_type = pd.concat([train_op_df['net_type'], test_a_op_df['net_type'], test_b_op_df['net_type']])
 
 values_net_type_org = net_type.unique().tolist()
 values_net_type = np.array(values_net_type_org).reshape(len(values_net_type_org), -1)
@@ -66,7 +67,7 @@ pd.DataFrame.from_dict(data=mp_op_net_type, orient='columns')\
 
 # %%
 # op_channel onehot+pca
-channel = pd.concat([train_op_df['channel'], test_op_df['channel']])
+channel = pd.concat([train_op_df['channel'], test_a_op_df['channel'], test_b_op_df['channel']])
 dim_channel = 5
 
 values_channel_org = channel.unique().tolist()      # 原来shape的values
@@ -85,7 +86,7 @@ pd.DataFrame.from_dict(data=mp_op_channel, orient='columns')\
 
 # %%
 # tran_platform onehot
-platform = pd.concat([train_trans_df['platform'], test_trans_df['platform']])
+platform = pd.concat([train_trans_df['platform'], test_a_trans_df['platform'], test_b_trans_df['platform']])
 
 values_platform_org = platform.unique().tolist()
 values_platform = np.array(values_platform_org).reshape(len(values_platform_org), -1)
@@ -99,7 +100,7 @@ pd.DataFrame.from_dict(data=mp_trans_platform, orient='columns')\
 
 # %%
 # tunnel_in onehot
-tunnel_in = pd.concat([train_trans_df['tunnel_in'], test_trans_df['tunnel_in']])
+tunnel_in = pd.concat([train_trans_df['tunnel_in'], test_a_trans_df['tunnel_in'], test_b_trans_df['tunnel_in']])
 
 values_tunnel_in_org = tunnel_in.unique().tolist()
 values_tunnel_in = np.array(values_tunnel_in_org).reshape(len(values_tunnel_in_org), -1)
@@ -113,7 +114,7 @@ pd.DataFrame.from_dict(data=mp_trans_tunnel_in, orient='columns')\
 
 # %%
 # tunnel_out onehot
-tunnel_out = pd.concat([train_trans_df['tunnel_out'], test_trans_df['tunnel_out']])
+tunnel_out = pd.concat([train_trans_df['tunnel_out'], test_a_trans_df['tunnel_out'], test_b_trans_df['tunnel_out']])
 
 values_tunnel_out_org = tunnel_out.unique().tolist()
 values_tunnel_out = np.array(values_tunnel_out_org).reshape(len(values_tunnel_out_org), -1)
@@ -127,7 +128,7 @@ pd.DataFrame.from_dict(data=mp_trans_tunnel_out, orient='columns')\
 
 # %%
 # trans_type1 onehot+pca
-type1 = pd.concat([train_trans_df['type1'], test_trans_df['type1']])
+type1 = pd.concat([train_trans_df['type1'], test_a_trans_df['type1'], test_b_trans_df['type1']])
 dim_type1 = 5
 
 values_type1_org = type1.unique().tolist()      # 原来shape的values
@@ -145,7 +146,7 @@ pd.DataFrame.from_dict(data=mp_trans_type1, orient='columns')\
     .to_csv(base_dir + '/dataset/dataset2/encoders/enc_trans_type1.csv', index=False)
 
 # %%
-type2 = pd.concat([train_trans_df['type2'], test_trans_df['type2']])
+type2 = pd.concat([train_trans_df['type2'], test_a_trans_df['type2'], test_b_trans_df['type2']])
 dim_type2 = 5
 
 values_type2_org = type2.unique().tolist()      # 原来shape的values
